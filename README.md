@@ -130,4 +130,4 @@ Schema design and data ingestion are in progress.
 ## Author
 
 **Arvind Thyagarajan**  
-Senior Analytics & Systems Engineering  
+
