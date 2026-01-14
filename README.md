@@ -1,247 +1,227 @@
-🏈 NFL Fantasy Player Forecasting with SQL Analytics
+# 🏈 NFL Fantasy Player Forecasting with SQL Analytics
 
-Author: Arvind Thyagarajan
-Tech Stack: PostgreSQL · SQL Analytics · Python · Django · (Planned: React)
+**Author:** Arvind Thyagarajan  
+**Tech Stack:** PostgreSQL · SQL Analytics · Python · Django  
+*(Planned: React Dashboard)*
 
-📌 Project Overview
+---
 
-This project is an end-to-end NFL fantasy football forecasting system built to showcase:
+## 📌 Project Overview
 
-Advanced SQL analytics in PostgreSQL
+This project is an end-to-end **NFL fantasy football forecasting system** built to showcase:
 
-Real-world data ingestion and modeling
+- Advanced **SQL analytics** in PostgreSQL  
+- Real-world **data ingestion and modeling**  
+- Explainable, non-black-box forecasting logic  
+- Proper **out-of-sample evaluation** on unseen seasons  
+- Clean separation between data, analytics, and application layers  
 
-Explainable, non-black-box forecasting logic
+The goal is not just to predict fantasy points, but to demonstrate how
+**production-style analytical pipelines** are designed, evaluated, and presented.
 
-Proper out-of-sample evaluation on unseen seasons
+---
 
-Clean separation between data, analytics, and application layers
-
-The core objective is not just to “predict fantasy points,” but to demonstrate how production-style analytical pipelines are designed, evaluated, and presented.
-
-🎯 Problem Statement
+## 🎯 Problem Statement
 
 Fantasy football forecasting is inherently noisy:
 
-Player usage changes week to week
-
-Injuries, game scripts, and coaching decisions introduce volatility
-
-Early-season data is sparse and misleading
+- Player usage changes week to week  
+- Injuries, game scripts, and coaching decisions introduce volatility  
+- Early-season data is sparse and misleading  
 
 Rather than relying on opaque machine-learning models, this project explores how far one can go using:
 
-Carefully designed SQL feature engineering + domain-aware logic
+> **Carefully designed SQL feature engineering combined with domain-aware logic**
 
-…and how to measure when and why predictions fail.
+…and how to rigorously **measure when and why predictions fail**.
 
-📊 Data Sources
+---
 
-The project uses real NFL data from the NFLverse open datasets:
+## 📊 Data Sources
 
-Player-level, game-level statistics
+The project uses real NFL data from the **NFLverse** open datasets:
 
-Official NFL schedules and metadata
+- Player-level, game-level statistics  
+- Official NFL schedules and metadata  
 
-Coverage:
+**Coverage**
+- Seasons: **2018 – 2024**  
+- Positions: **QB, RB, WR, TE**  
+- Granularity: **Player × Game**
 
-Seasons: 2018 – 2024
+All raw data is ingested *as-is* to preserve source fidelity.
 
-Positions: QB, RB, WR, TE
+---
 
-Granularity: Player × Game
+## 🗄️ Data Architecture
 
-All raw data is ingested as-is to preserve source fidelity.
+The PostgreSQL database is structured using **schema separation**, mirroring real analytics systems:
 
-🗄️ Data Architecture
-
-The PostgreSQL database is intentionally structured using schema separation, mirroring real analytics systems:
-
-raw        → immutable source data (CSV ingestion)
-analytics  → facts, features, forecasts, evaluation
-public     → Django application tables
+raw → immutable source data (CSV ingestion)
+analytics → facts, features, forecasts, evaluation
+public → Django application tables
 
 
 This ensures:
+- Raw data remains untouched  
+- All transformations are explicit and auditable  
+- Forecasting logic is fully reproducible  
 
-No analytics logic pollutes raw data
+---
 
-All transformations are explicit and auditable
+## 🔁 Raw Data Ingestion
 
-Forecasting logic is fully reproducible
+Raw CSV files are ingested using **Python + pandas** as a transport layer:
 
-🔁 Raw Data Ingestion
+- Handles wide, evolving schemas safely  
+- Avoids fragile `COPY` assumptions  
+- Preserves all original columns  
 
-Raw CSV files are ingested using Python + pandas as a transport layer:
+**Design principle**
 
-Handles wide, evolving schemas safely
-
-Avoids fragile COPY assumptions
-
-Preserves all original columns
-
-Key principle:
-
-Raw ingestion is permissive; analytics are strict.
+> Raw ingestion should be permissive; analytics should be strict.
 
 No filtering or modeling occurs during ingestion.
 
-🧮 Fantasy Scoring (PPR)
+---
 
-Fantasy scoring is recomputed in SQL, not trusted from source files.
+## 🧮 Fantasy Scoring (PPR)
+
+Fantasy scoring is **recomputed in SQL**, not trusted from source files.
 
 Standard PPR rules are applied explicitly, including:
 
-Passing yards, TDs, interceptions
-
-Rushing yards, TDs
-
-Receptions and receiving yards
+- Passing yards, touchdowns, interceptions  
+- Rushing yards and touchdowns  
+- Receptions and receiving yards  
 
 This makes scoring:
+- Auditable  
+- Explainable  
+- Easy to adapt to other scoring systems  
 
-Auditable
+---
 
-Explainable
+## 🧠 Feature Engineering (SQL)
 
-Easy to adapt to other scoring systems
+All feature engineering is implemented directly in PostgreSQL using **window functions**.
 
-🧠 Feature Engineering (SQL)
+### Performance Features
+- Last-3-game PPR average  
+- Last-5-game PPR average  
+- Season-to-date PPR average  
 
-All feature engineering is implemented using PostgreSQL window functions, including:
+### Usage Features
+- Rolling targets (WR / TE)  
+- Rolling rushing attempts (RB)  
+- Rolling touches (QB / RB)  
 
-Performance Features
+These features form a **unified SQL feature layer** used by all forecasting logic.
 
-Last-3-game PPR average
+---
 
-Last-5-game PPR average
+## 📈 Forecasting Strategy
 
-Season-to-date PPR average
+Forecasts are generated for **Week N+1 using data available through Week N**, preventing data leakage.
 
-Usage Features
-
-Rolling targets (WR/TE)
-
-Rolling rushing attempts (RB)
-
-Rolling touches (QB/RB)
-
-These features form a unified SQL feature layer, used by all forecasting logic.
-
-📈 Forecasting Strategy
-
-Forecasts are generated for Week N+1 using data available through Week N, preventing data leakage.
-
-Position-Specific Weighting
+### Position-Specific Weighting
 
 Different positions exhibit different volatility patterns:
 
-QBs → form-driven, high variance
+- **QB:** form-driven, high variance  
+- **RB:** workload-driven  
+- **WR:** role and target-share driven  
+- **TE:** slower, stability-driven  
 
-RBs → workload-driven
+Forecast logic applies **position-aware weights** to rolling features, significantly improving stability.
 
-WRs → role & target share driven
-
-TEs → slower, stability-driven
-
-Forecast logic applies position-aware weights to rolling features, significantly improving stability.
-
-Enhanced Forecast Model
+### Enhanced Forecast Model
 
 The final forecast combines:
+- Rolling PPR performance  
+- Rolling usage signals  
+- Position-specific weighting  
 
-Rolling PPR performance
+All logic remains **transparent SQL** — no black boxes.
 
-Rolling usage signals
+---
 
-Position-specific weighting
+## 🧪 Model Evaluation & Backtesting
 
-All logic remains transparent SQL—no black boxes.
+### Train / Test Split
 
-🧪 Model Evaluation & Backtesting
-Train / Test Split
+- Training data: **2018 – 2023**  
+- Evaluation data: **2024 (unseen season)**  
 
-Training: 2018–2023
+This provides a **true out-of-sample test**, mirroring real forecasting conditions.
 
-Evaluation: 2024 (unseen season)
+### Evaluation Metrics (SQL)
 
-This provides a true out-of-sample test, mirroring real forecasting conditions.
-
-Evaluation Metrics (SQL)
-
-Mean Absolute Error (MAE)
-
-Bias (over- vs under-prediction)
-
-Position-level accuracy
-
-Weekly stability analysis
-
-Outlier inspection
+- Mean Absolute Error (MAE)  
+- Bias (over- vs under-prediction)  
+- Position-level accuracy  
+- Weekly stability analysis  
+- Outlier inspection  
 
 Multiple model variants (baseline → weighted → enhanced) are compared directly in SQL.
 
-🔍 Key Learnings
+---
 
-Rolling averages alone struggle with early-season usage shocks
+## 🔍 Key Learnings
 
-Usage signals materially improve WR/RB forecasts
-
-Some NFL outcomes are inherently unpredictable (boom/bust weeks)
-
-Directional accuracy and tier correctness matter more than exact points
+- Rolling averages alone struggle with early-season usage shocks  
+- Usage signals materially improve WR/RB forecasts  
+- Some NFL outcomes are inherently unpredictable (boom/bust weeks)  
+- Directional accuracy and tier correctness matter more than exact point predictions  
 
 Most importantly:
 
-Complex, explainable forecasting systems can be built and evaluated entirely in SQL when the data model is designed well.
+> **Complex, explainable forecasting systems can be built and evaluated entirely in SQL when the data model is well designed.**
 
-🧰 Tooling & Application Layer
+---
 
-PostgreSQL: Core analytics engine
+## 🧰 Tooling & Application Layer
 
-Python: Data ingestion & automation
+- **PostgreSQL** — core analytics engine  
+- **Python** — ingestion and automation  
+- **Django** — application foundation and admin interface  
 
-Django: Application foundation + admin interface
+Django is intentionally kept **logic-light**:
+- SQL remains the single source of truth  
+- Django will expose read-only analytics APIs  
 
-Django is intentionally kept logic-light:
+---
 
-SQL remains the single source of truth
+## 🌐 Planned Enhancements
 
-Django will expose read-only analytics APIs
+- Django REST API for analytics views  
+- React dashboard to visualize:
+  - Weekly forecasts  
+  - Actual vs predicted comparisons  
+  - Model accuracy metrics  
 
-🌐 Planned Enhancements
+---
 
-Django REST API for analytics views
+## 📎 Repository Structure
 
-React dashboard to visualize:
-
-Forecasts by week/position
-
-Actual vs predicted comparisons
-
-Model accuracy metrics
-
-Public demo suitable for portfolio & LinkedIn showcase
-
-📎 Repository Structure
 nfl-player-forecasting-sql/
-├── scripts/        # ingestion & automation
+├── scripts/ # ingestion & automation
 ├── sql/
-│   └── views/      # versioned analytics SQL
-├── docs/           # technical notes & learnings
+│ └── views/ # versioned analytics SQL
+├── docs/ # technical notes & learnings
 ├── .gitignore
 └── README.md
 
-🚀 Why This Project Matters
+
+---
+
+## 🚀 Why This Project Matters
 
 This project demonstrates:
 
-Real data handling (not toy datasets)
+- Real data handling (not toy datasets)  
+- Advanced SQL analytics and window functions  
+- Proper forecasting evaluation discipline  
+- End-to-end system thinking (DB → API → UI)  
 
-Strong SQL analytics and window functions
-
-Proper forecasting evaluation discipline
-
-End-to-end system thinking (DB → API → UI)
-
-It is designed to be read, reasoned about, and extended—not just run.
+It is designed to be **read, reasoned about, and extended**, not just run.
