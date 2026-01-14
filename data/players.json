@@ -1,0 +1,13 @@
+[
+  { "first_name": "Brock", "last_name": "Purdy", "position": "QB", "team": "SF", "jersey_number": 13 },
+  { "first_name": "Christian", "last_name": "McCaffrey", "position": "RB", "team": "SF", "jersey_number": 23 },
+
+  { "first_name": "Dak", "last_name": "Prescott", "position": "QB", "team": "DAL", "jersey_number": 4 },
+  { "first_name": "CeeDee", "last_name": "Lamb", "position": "WR", "team": "DAL", "jersey_number": 88 },
+
+  { "first_name": "Patrick", "last_name": "Mahomes", "position": "QB", "team": "KC", "jersey_number": 15 },
+  { "first_name": "Travis", "last_name": "Kelce", "position": "TE", "team": "KC", "jersey_number": 87 },
+
+  { "first_name": "Josh", "last_name": "Allen", "position": "QB", "team": "BUF", "jersey_number": 17 },
+  { "first_name": "Stefon", "last_name": "Diggs", "position": "WR", "team": "BUF", "jersey_number": 14 }
+]

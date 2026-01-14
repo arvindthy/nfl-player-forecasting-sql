@@ -1,0 +1,30 @@
+[
+  {
+    "code": "SF",
+    "name": "San Francisco 49ers",
+    "city": "San Francisco",
+    "conference": "NFC",
+    "division": "West"
+  },
+  {
+    "code": "DAL",
+    "name": "Dallas Cowboys",
+    "city": "Dallas",
+    "conference": "NFC",
+    "division": "East"
+  },
+  {
+    "code": "KC",
+    "name": "Kansas City Chiefs",
+    "city": "Kansas City",
+    "conference": "AFC",
+    "division": "West"
+  },
+  {
+    "code": "BUF",
+    "name": "Buffalo Bills",
+    "city": "Buffalo",
+    "conference": "AFC",
+    "division": "East"
+  }
+]

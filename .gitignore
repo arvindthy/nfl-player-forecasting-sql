@@ -1,0 +1,52 @@
+# ----------------------
+# Python / Virtual Env
+# ----------------------
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ----------------------
+# Django
+# ----------------------
+*.log
+local_settings.py
+db.sqlite3
+staticfiles/
+
+# ----------------------
+# Environment / Secrets
+# ----------------------
+.env
+.env.*
+*.key
+*.pem
+
+# ----------------------
+# OS / Editor
+# ----------------------
+.DS_Store
+.idea/
+.vscode/
+
+# ----------------------
+# Data files (raw + large)
+# ----------------------
+data/raw/*.csv
+data/raw/*.zip
+
+# ----------------------
+# Build / Cache
+# ----------------------
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# ----------------------
+# Jupyter / Experiments
+# ----------------------
+.ipynb_checkpoints/
+.python-version
