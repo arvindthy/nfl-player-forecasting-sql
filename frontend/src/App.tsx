@@ -1,10 +1,16 @@
-function App() {
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "@/pages/LandingPage";
+import ForecastExplorer from "@/pages/ForecastExplorer";
+
+export default function App() {
   return (
-    <div style={{ padding: "2rem", fontFamily: "system-ui" }}>
-      <h1>NFL Fantasy Forecasting</h1>
-      <p>SQL-powered analytics & forecasting dashboard</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/forecasts" element={<ForecastExplorer />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App;
+

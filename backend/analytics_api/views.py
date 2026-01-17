@@ -1,5 +1,8 @@
+import csv
 import json
+from pathlib import Path
 from functools import wraps
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -193,6 +196,84 @@ def metrics_by_week_view(request):
             "season": season,
             "weekly_mae": weekly_mae,
         }
+    )
+
+
+def player_details_view(request):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    season = request.GET.get("season")
+    player_name = request.GET.get("player")
+    team = request.GET.get("team")
+    position = request.GET.get("position")
+    if not season or not player_name:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season and player are required."}, status=400),
+        )
+
+    try:
+        season = int(season)
+    except ValueError:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season must be an integer."}, status=400),
+        )
+
+    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    if not csv_path.exists():
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Season data not found."}, status=404),
+        )
+
+    normalized = player_name.strip().lower()
+    normalized_team = (team or "").strip().lower()
+    normalized_position = (position or "").strip().lower()
+    records = []
+    fallback_records = []
+    with csv_path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            name_match = row.get("player_name", "").strip().lower()
+            display_match = row.get("player_display_name", "").strip().lower()
+            team_match = row.get("recent_team", "").strip().lower()
+            position_match = row.get("position", "").strip().lower()
+            if normalized not in {name_match, display_match}:
+                continue
+
+            if normalized_team and team_match != normalized_team:
+                fallback_records.append(row)
+                continue
+
+            if normalized_position and position_match != normalized_position:
+                fallback_records.append(row)
+                continue
+
+            records.append(row)
+
+    if not records and fallback_records:
+        records = fallback_records
+
+    if not records:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Player not found for season."}, status=404),
+        )
+
+    return add_cors_headers(
+        request,
+        JsonResponse(
+            {
+                "season": season,
+                "player_name": player_name,
+                "records": records,
+            }
+        ),
     )
 
 

@@ -34,6 +34,7 @@ CSRF_TRUSTED_ORIGINS = [
 	"http://localhost:5100",
 	"http://localhost:5200",
 	"http://localhost:3000",
+	"http://localhost:5173",
 	"https://apiviewer.yatri360.com",
 ]
 

@@ -18,4 +18,5 @@ urlpatterns = [
     ),
     path("outliers/", views.token_auth_required(views.outliers_view), name="analytics-outliers"),
     path("filters/", views.token_auth_required(views.filters_view), name="analytics-filters"),
+    path("player-details/", views.token_auth_required(views.player_details_view), name="analytics-player-details"),
 ]
