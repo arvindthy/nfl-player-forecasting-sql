@@ -23,6 +23,7 @@ staticfiles/
 .env.*
 *.key
 *.pem
+backend/.env
 
 # ----------------------
 # OS / Editor
@@ -34,8 +35,8 @@ staticfiles/
 # ----------------------
 # Data files (raw + large)
 # ----------------------
-data/raw/*.csv
-data/raw/*.zip
+backend/data/raw/*.csv
+backend/data/raw/*.zip
 
 # ----------------------
 # Build / Cache
@@ -50,3 +51,4 @@ build/
 # ----------------------
 .ipynb_checkpoints/
 .python-version
+

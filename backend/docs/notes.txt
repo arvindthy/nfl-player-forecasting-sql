@@ -1,0 +1,43 @@
+gunicon service file 
+sudo nano /etc/systemd/system/arvindffb-backend-prod.service
+
+[Unit]
+Description=ArvindFFB Backend API (Production)
+After=network.target
+
+[Service]
+User=thyagil
+Group=www-data
+
+WorkingDirectory=/home/thyagil/apps/arvindffb/prod/repo/backend
+
+# Load secrets (DB, tokens, etc.)
+EnvironmentFile=/home/thyagil/apps/arvindffb/prod/repo/backend/.env
+
+# Django settings (PROD)
+Environment="DJANGO_SETTINGS_MODULE=config.settings.prod"
+
+# Gunicorn execution (PYTHON 3.12.12 via venv)
+ExecStart=/home/thyagil/apps/arvindffb/prod/repo/backend/venv/bin/gunicorn \
+  --workers 3 \
+  --timeout 120 \
+  --bind unix:/run/arvindffb-backend-prod.sock \
+  config.wsgi:application
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+env
+
+STEP 2 — Start gunicorn via systemd
+
+sudo systemctl daemon-reload
+sudo systemctl start arvindffb-backend-prod
+sudo systemctl status arvindffb-backend-prod
+
+
+NGINX 
+=====
+📄 /etc/nginx/sites-available/api.arvindffb.com

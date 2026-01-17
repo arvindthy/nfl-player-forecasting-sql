@@ -1,8 +1,10 @@
 from .base import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-41k!@^v&cj3*38pc_(lxfian+_lu23o95k)46e5@)ujf6nnyi%'
-
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "dev-insecure-secret-key"
+)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
