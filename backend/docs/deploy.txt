@@ -1,0 +1,9 @@
+git add backend   
+git commit -m "backend: release v1.0.2"                               
+git push origin main
+
+git tag -d backend-v1.0.2 2>/dev/null || true
+git push origin :refs/tags/backend-v1.0.2 2>/dev/null || true
+
+git tag -a backend-v1.0.2 -m "Backend release v1.0.1"
+git push origin backend-v1.0.2
