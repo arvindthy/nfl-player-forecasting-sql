@@ -11,7 +11,7 @@ SELECT player_id,
     "position",
     team,
     season,
-    week + 1 AS forecast_week,
+    week AS forecast_week,
     round(
         CASE "position"
             WHEN 'QB'::text THEN 0.6 * ppr_avg_last_3 + 0.3 * ppr_avg_last_5 + 0.1 * ppr_avg_season

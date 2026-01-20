@@ -1,0 +1,45 @@
+// Vintage Leather (Classic Football) Warm browns, turf greens, and creamy off-whites. Reminiscent of old-school pigskins.
+import type { Theme } from '../types';
+export const vintageLeather: Theme = {
+  id: "vintage-leather",
+  name: "Vintage Leather",
+  type: 'dark',
+  variables: {
+    "--font-body": "\"Barlow\", system-ui, sans-serif",
+    "--font-display": "\"Bebas Neue\", sans-serif",
+    "--color-bg": "#292524",
+    "--color-bg-rgb": "41, 37, 36",
+    "--color-surface-rgb": "68, 64, 60",
+    "--color-surface-2-rgb": "87, 83, 78",
+    "--color-surface-3-rgb": "161, 98, 7",
+    "--color-surface-4-rgb": "120, 53, 15",
+    "--color-surface-5-rgb": "69, 26, 3",
+    "--color-ambient-1-rgb": "234, 179, 8",
+    "--color-ambient-2-rgb": "22, 101, 52",
+    "--color-border-rgb": "144, 238, 144",
+    "--color-label-rgb": "144, 238, 144",
+    "--color-kpi-label-rgb": "144, 238, 144",
+    "--color-text-rgb": "245, 245, 244",
+    "--color-text-muted-rgb": "214, 211, 209",
+    "--color-text-dim-rgb": "168, 162, 158",
+    "--color-accent-rgb": "234, 179, 8",       // Gold
+    "--color-accent-2-rgb": "22, 163, 74",     // Turf Green
+    "--color-accent-3-rgb": "161, 98, 7",      // Leather Brown
+    "--color-warning-rgb": "249, 115, 22",
+    "--color-success-rgb": "34, 197, 94",
+    "--color-info-rgb": "56, 189, 248",
+    "--color-purple-rgb": "168, 85, 247",
+    "--color-warning-text-rgb": "254, 215, 170",
+    "--color-success-text-rgb": "187, 247, 208",
+    "--color-purple-text-rgb": "233, 213, 255",
+    "--color-info-text-rgb": "186, 230, 253",
+    "--color-shadow-rgb": "12, 10, 9",
+    "--color-white-rgb": "255, 255, 255",
+    "--color-ink-rgb": "41, 37, 36",
+    "--color-ink-strong-rgb": "28, 25, 23",
+    "--color-slate-rgb": "168, 162, 158",
+    "--color-slate-strong-rgb": "120, 113, 108",
+    "--color-border-light-rgb": "87, 83, 78",
+    "--color-surface-light-rgb": "231, 229, 228",
+  },
+};

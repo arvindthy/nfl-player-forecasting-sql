@@ -51,3 +51,15 @@ export interface PlayerDetailsResponse {
   player_name: string;
   records: PlayerDetailRecord[];
 }
+
+export interface OutliersResponse {
+  season: number;
+  results: Array<{
+    player_name: string;
+    week: number;
+    position: string;
+    predicted: string;
+    actual: string;
+    abs_error: string;
+  }>;
+}

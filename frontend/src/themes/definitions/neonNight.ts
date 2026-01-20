@@ -1,0 +1,45 @@
+// Neon Night (Futuristic) Cyberpunk vibes. Deep purple BG with neon pink and cyan. Great for "Monday Night" energy.
+import type { Theme } from '../types';
+export const neonNight: Theme = {
+  id: "neon-night",
+  name: "Neon Night",
+  type: 'dark',
+  variables: {
+    "--font-body": "\"Barlow\", system-ui, sans-serif",
+    "--font-display": "\"Bebas Neue\", sans-serif",
+    "--color-bg": "#2e1065",
+    "--color-bg-rgb": "46, 16, 101",
+    "--color-surface-rgb": "59, 7, 100",
+    "--color-surface-2-rgb": "88, 28, 135",
+    "--color-surface-3-rgb": "236, 72, 153",
+    "--color-surface-4-rgb": "168, 85, 247",
+    "--color-surface-5-rgb": "217, 70, 239",
+    "--color-ambient-1-rgb": "236, 72, 153",
+    "--color-ambient-2-rgb": "34, 211, 238",
+    "--color-border-rgb": "0, 255, 239",
+    "--color-label-rgb": "0, 255, 239",
+    "--color-kpi-label-rgb": "0, 255, 239",
+    "--color-text-rgb": "250, 232, 255",
+    "--color-text-muted-rgb": "233, 213, 255",
+    "--color-text-dim-rgb": "192, 132, 252",
+    "--color-accent-rgb": "244, 114, 182",     // Neon Pink
+    "--color-accent-2-rgb": "34, 211, 238",    // Cyan
+    "--color-accent-3-rgb": "192, 38, 211",    // Purple
+    "--color-warning-rgb": "250, 204, 21",
+    "--color-success-rgb": "74, 222, 128",
+    "--color-info-rgb": "56, 189, 248",
+    "--color-purple-rgb": "217, 70, 239",
+    "--color-warning-text-rgb": "254, 240, 138",
+    "--color-success-text-rgb": "220, 252, 231",
+    "--color-purple-text-rgb": "250, 232, 255",
+    "--color-info-text-rgb": "224, 242, 254",
+    "--color-shadow-rgb": "19, 7, 54",
+    "--color-white-rgb": "255, 255, 255",
+    "--color-ink-rgb": "59, 7, 100",
+    "--color-ink-strong-rgb": "30, 5, 50",
+    "--color-slate-rgb": "147, 51, 234",
+    "--color-slate-strong-rgb": "107, 33, 168",
+    "--color-border-light-rgb": "126, 34, 206",
+    "--color-surface-light-rgb": "250, 232, 255",
+  },
+};

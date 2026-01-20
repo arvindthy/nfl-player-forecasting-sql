@@ -7,3 +7,28 @@ git push origin :refs/tags/backend-v1.0.2 2>/dev/null || true
 
 git tag -a backend-v1.0.2 -m "Backend release v1.0.1"
 git push origin backend-v1.0.2
+
+
+rm -rf repo
+git clone git@github-arvindthy:arvindthy/nfl-player-forecasting-sql.git repo
+cd repo
+git checkout backend-v1.0.2
+
+cd backend
+/home/thyagil/.pyenv/shims/python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+scp backend/.env \
+  thyagil@10.0.0.4:/home/thyagil/apps/arvindffb/prod/repo/backend/.env
+
+
+export DJANGO_SETTINGS_MODULE=config.settings.prod                      
+python manage.py collectstatic
+
+sudo systemctl daemon-reload
+sudo systemctl start arvindffb-backend-prod
+sudo systemctl status arvindffb-backend-prod
+
+sudo nginx -t                                                                                    
+sudo systemctl reload nginx

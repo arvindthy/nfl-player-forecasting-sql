@@ -1,0 +1,45 @@
+// Slate Tactical (Minimalist/Technical) Cool greys and slate blues. Looks like a coach's playbook or analytics dashboard.
+import type { Theme } from '../types';
+export const slateTactical: Theme = {
+  id: "slate-tactical",
+  name: "Slate Tactical",
+  type: 'dark',
+  variables: {
+    "--font-body": "\"Barlow\", system-ui, sans-serif",
+    "--font-display": "\"Bebas Neue\", sans-serif",
+    "--color-bg": "#1e293b",
+    "--color-bg-rgb": "30, 41, 59",
+    "--color-surface-rgb": "51, 65, 85",
+    "--color-surface-2-rgb": "71, 85, 105",
+    "--color-surface-3-rgb": "148, 163, 184",
+    "--color-surface-4-rgb": "100, 116, 139",
+    "--color-surface-5-rgb": "71, 85, 105",
+    "--color-ambient-1-rgb": "148, 163, 184",
+    "--color-ambient-2-rgb": "203, 213, 225",
+    "--color-border-rgb": "153, 204, 255",
+    "--color-label-rgb": "153, 204, 255",
+    "--color-kpi-label-rgb": "153, 204, 255",
+    "--color-text-rgb": "241, 245, 249",
+    "--color-text-muted-rgb": "203, 213, 225",
+    "--color-text-dim-rgb": "148, 163, 184",
+    "--color-accent-rgb": "226, 232, 240",     // Light Grey
+    "--color-accent-2-rgb": "96, 165, 250",    // Soft Blue
+    "--color-accent-3-rgb": "100, 116, 139",   // Slate
+    "--color-warning-rgb": "251, 191, 36",
+    "--color-success-rgb": "52, 211, 153",
+    "--color-info-rgb": "56, 189, 248",
+    "--color-purple-rgb": "167, 139, 250",
+    "--color-warning-text-rgb": "253, 230, 138",
+    "--color-success-text-rgb": "209, 250, 229",
+    "--color-purple-text-rgb": "237, 233, 254",
+    "--color-info-text-rgb": "224, 242, 254",
+    "--color-shadow-rgb": "15, 23, 42",
+    "--color-white-rgb": "255, 255, 255",
+    "--color-ink-rgb": "30, 41, 59",
+    "--color-ink-strong-rgb": "15, 23, 42",
+    "--color-slate-rgb": "148, 163, 184",
+    "--color-slate-strong-rgb": "100, 116, 139",
+    "--color-border-light-rgb": "71, 85, 105",
+    "--color-surface-light-rgb": "248, 250, 252",
+  },
+};

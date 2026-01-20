@@ -12,7 +12,10 @@ Group=www-data
 WorkingDirectory=/home/thyagil/apps/arvindffb/prod/repo/backend
 
 # Load secrets (DB, tokens, etc.)
-EnvironmentFile=/home/thyagil/apps/arvindffb/prod/repo/backend/.env
+EnvironmentFile=/home/thyagil/apps/arvindffb/prod/repo/backend/.env.prod
+
+# Environment selector for settings loader
+Environment=DJANGO_ENV=prod
 
 # Django settings (PROD)
 Environment="DJANGO_SETTINGS_MODULE=config.settings.prod"
@@ -29,7 +32,6 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-env
 
 STEP 2 — Start gunicorn via systemd
 

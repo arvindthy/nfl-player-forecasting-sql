@@ -11,7 +11,7 @@ SELECT player_id,
     "position",
     team,
     season,
-    week + 1 AS forecast_week,
+    week AS forecast_week,
     round(0.5 * ppr_avg_last_3 + 0.3 * ppr_avg_last_5 + 0.2 * ppr_avg_season, 2) AS forecast_ppr_points
    FROM analytics.player_game_features f
   WHERE season = 2024 AND ppr_avg_last_3 IS NOT NULL AND ppr_avg_last_5 IS NOT NULL;;

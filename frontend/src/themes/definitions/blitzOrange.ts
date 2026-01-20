@@ -1,0 +1,45 @@
+// Blitz Orange (High Energy) Dark charcoal background with vibrant safety orange accents. Common in sports branding.
+import type { Theme } from '../types';
+export const blitzOrange: Theme = {
+  id: "blitz-orange",
+  name: "Blitz Orange",
+  type: 'dark',
+  variables: {
+    "--font-body": "\"Barlow\", system-ui, sans-serif",
+    "--font-display": "\"Bebas Neue\", sans-serif",
+    "--color-bg": "#18181b",
+    "--color-bg-rgb": "24, 24, 27",
+    "--color-surface-rgb": "39, 39, 42",
+    "--color-surface-2-rgb": "63, 63, 70",
+    "--color-surface-3-rgb": "249, 115, 22",
+    "--color-surface-4-rgb": "234, 88, 12",
+    "--color-surface-5-rgb": "194, 65, 12",
+    "--color-ambient-1-rgb": "249, 115, 22",
+    "--color-ambient-2-rgb": "253, 186, 116",
+    "--color-border-rgb": "255, 204, 204", //"82, 82, 91",
+    "--color-label-rgb":  "255, 204, 204", //"161, 161, 170",
+    "--color-kpi-label-rgb":  "255, 204, 204", //"161, 161, 170",
+    "--color-text-rgb": "255, 255, 255",
+    "--color-text-muted-rgb": "161, 161, 170",
+    "--color-text-dim-rgb": "113, 113, 122",
+    "--color-accent-rgb": "249, 115, 22",      // Orange
+    "--color-accent-2-rgb": "251, 146, 60",    // Light Orange
+    "--color-accent-3-rgb": "234, 88, 12",     // Dark Orange
+    "--color-warning-rgb": "253, 224, 71",
+    "--color-success-rgb": "34, 197, 94",
+    "--color-info-rgb": "14, 165, 233",
+    "--color-purple-rgb": "168, 85, 247",
+    "--color-warning-text-rgb": "254, 249, 195",
+    "--color-success-text-rgb": "187, 247, 208",
+    "--color-purple-text-rgb": "233, 213, 255",
+    "--color-info-text-rgb": "186, 230, 253",
+    "--color-shadow-rgb": "0, 0, 0",
+    "--color-white-rgb": "255, 255, 255",
+    "--color-ink-rgb": "39, 39, 42",
+    "--color-ink-strong-rgb": "24, 24, 27",
+    "--color-slate-rgb": "113, 113, 122",
+    "--color-slate-strong-rgb": "82, 82, 91",
+    "--color-border-light-rgb": "63, 63, 70",
+    "--color-surface-light-rgb": "255, 255, 255",
+  },
+};

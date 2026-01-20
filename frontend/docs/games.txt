@@ -1,0 +1,337 @@
+1️⃣ Core Philosophy of the Games Dashboard
+
+Think of the Games tab as answering 4 questions instantly:
+
+What games happened / are happening?
+
+What mattered in those games (fantasy + betting context)?
+
+How do games change by situation (season, week, team, QB, spread)?
+
+What patterns can I discover quickly?
+
+This means:
+
+Table-first, but
+
+Filter-heavy, and
+
+Insight panels above the table
+
+2️⃣ Primary Dashboard Layout (Recommended)
+🔹 A. Global Filters (Sticky Top Bar)
+
+These should slice everything below instantly.
+
+Required filters
+
+Season → multi-select (2018–2024)
+
+Week → slider or multi-select
+
+Game Type → Regular / Playoffs
+
+Team → single-select (home OR away)
+
+Division Games → yes/no
+
+Overtime → yes/no
+
+Advanced filters (collapsible)
+
+Spread range (spread_line)
+
+Total range (total_line)
+
+Roof (roof)
+
+Surface (surface)
+
+Temperature range
+
+Wind range
+
+Home/Away rest differential (home_rest - away_rest)
+
+👉 These filters turn your dashboard from “list of games” into a research tool.
+
+🔹 B. KPI Strip (Top Summary Cards)
+
+Based on current filters, show:
+
+Games Count
+
+Avg Total Points
+
+Home Win %
+
+Favorites Win % (spread-based)
+
+Overs Hit %
+
+Avg Spread
+
+Avg Margin of Victory
+
+These KPIs make the dashboard feel alive.
+
+🔹 C. Main Games Table (Core)
+
+This is the anchor.
+
+Columns (recommended order):
+
+Week / Date / Time
+
+Away @ Home
+
+Score (Away–Home)
+
+Result (margin)
+
+Spread Line
+
+Total Line
+
+O/U Result
+
+Moneyline Result
+
+Overtime
+
+QB Matchup (Away QB vs Home QB)
+
+Weather (Temp / Wind / Roof)
+
+UX Enhancements
+
+Color-code:
+
+Home wins
+
+Overs / Unders
+
+Spread cover
+
+Click row → open Game Detail Drawer
+
+🔹 D. Game Detail Drawer (Slide-in Panel)
+
+When clicking a game row:
+
+Sections
+
+Game Summary
+
+Final score
+
+Spread & total outcomes
+
+QB & Coaching Context
+
+QBs
+
+Coaches
+
+Referee
+
+Conditions
+
+Stadium
+
+Roof
+
+Surface
+
+Weather
+
+Fantasy Hooks (later expansion)
+
+Link to player box scores
+
+QB fantasy output (future join)
+
+3️⃣ High-Value Slicing Ideas (This Is Where It Gets “Cool”)
+
+These are ready-made analysis modes.
+
+🧠 Mode 1: Team-Centric View
+
+Slice by team:
+
+Home vs Away performance
+
+Avg points scored / allowed
+
+Overs % by team
+
+Rest advantage impact
+
+👉 Great for fantasy and betting prep.
+
+🧠 Mode 2: QB Matchup Explorer
+
+Slice by:
+
+away_qb_name
+
+home_qb_name
+
+Show:
+
+Avg total
+
+Spread cover %
+
+Overtime %
+
+QB-specific game pace proxy (total + margin)
+
+🧠 Mode 3: Spread & Total Explorer
+
+Heat-map style logic:
+
+Spread buckets (e.g., -14 to +14)
+
+Total buckets (38–56)
+
+Answer questions like:
+
+Do big favorites actually cover?
+
+When totals are high, do overs hit?
+
+🧠 Mode 4: Weather Impact View
+
+Slice by:
+
+Roof open vs closed
+
+Temp < 40, 40–60, > 60
+
+Wind > 10 mph
+
+Overlay:
+
+Avg total
+
+Over %
+
+This is extremely valuable and underused.
+
+🧠 Mode 5: Rest & Scheduling Edge
+
+Use:
+
+home_rest
+
+away_rest
+
+Create derived fields:
+
+Rest differential
+
+Short-week games
+
+Great for:
+
+Thursday games
+
+Back-to-back road spots
+
+4️⃣ Derived Fields You SHOULD Compute (Very Important)
+
+These should be computed in SQL or API, not UI.
+
+home_win = home_score > away_score
+total_points = home_score + away_score
+spread_winner = 
+  CASE 
+    WHEN home_score - away_score > spread_line THEN 'HOME'
+    ELSE 'AWAY'
+  END
+over_hit = total_points > total_line
+rest_diff = home_rest - away_rest
+is_favorite_home = spread_line < 0
+
+
+These unlock fast filtering and KPIs.
+
+5️⃣ Suggested Materialized Views (Performance)
+
+Create:
+
+games_enriched_mv (2018–2024 only)
+
+Precompute derived fields
+
+Index on:
+
+season
+
+week
+
+home_team
+
+away_team
+
+spread_line
+
+total_line
+
+This keeps the dashboard snappy.
+
+6️⃣ Codex Instructions (Copy-Paste Ready)
+
+Below is exactly what to give Codex 👇
+
+📌 Codex Instruction: Games Dashboard
+Goal:
+Build a Games Dashboard for an NFL fantasy analytics site using the games table.
+
+Scope:
+- Seasons: 2018–2024 only
+- Primary entity: games
+
+Backend:
+1. Create an enriched query or materialized view that:
+   - Filters seasons 2018–2024
+   - Adds derived fields:
+     - home_win
+     - total_points
+     - over_hit
+     - spread_winner
+     - rest_diff
+     - is_favorite_home
+
+2. Expose a /games endpoint that supports:
+   - season (multi)
+   - week (multi)
+   - team (home OR away)
+   - game_type
+   - div_game
+   - spread_line range
+   - total_line range
+   - roof
+   - surface
+   - temp range
+   - wind range
+
+Frontend:
+3. Create a Games Dashboard page with:
+   - Sticky global filters at the top
+   - KPI summary strip (games count, avg total, home win %, overs %)
+   - Main sortable/filterable table of games
+   - Row click opens a slide-in Game Detail Drawer
+
+4. Add dashboard “modes” (tabs or toggles):
+   - All Games
+   - Team View
+   - QB Matchups
+   - Spread & Total Analysis
+   - Weather Impact
+
+UX Rules:
+- Do not use MUI Grid
+- Use CSS Grid or Box
+- Optimize for fast filtering and scanning

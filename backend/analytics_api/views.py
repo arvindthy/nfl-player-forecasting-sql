@@ -18,6 +18,7 @@ from .services.queries import (
     fetch_outliers,
     fetch_filters,
     fetch_weekly_mae,
+    fetch_games,
 )
 
 def overview_view(request):
@@ -275,6 +276,194 @@ def player_details_view(request):
             }
         ),
     )
+
+
+def mvp_view(request):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    season = request.GET.get("season")
+    if not season:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season is required."}, status=400),
+        )
+
+    try:
+        season = int(season)
+    except ValueError:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season must be an integer."}, status=400),
+        )
+
+    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    if not csv_path.exists():
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Season data not found."}, status=404),
+        )
+
+    best_row = None
+    best_points = None
+    with csv_path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            raw = row.get("fantasy_points_ppr")
+            if raw is None or raw == "":
+                continue
+            try:
+                points = float(raw)
+            except ValueError:
+                continue
+            if best_points is None or points > best_points:
+                best_points = points
+                best_row = row
+
+    if not best_row:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "No fantasy points found."}, status=404),
+        )
+
+    payload = {
+        "season": season,
+        "player_id": best_row.get("player_id"),
+        "player_name": best_row.get("player_name"),
+        "player_display_name": best_row.get("player_display_name"),
+        "position": best_row.get("position"),
+        "recent_team": best_row.get("recent_team"),
+        "fantasy_points_ppr": best_points,
+        "headshot_url": best_row.get("headshot_url"),
+    }
+    return add_cors_headers(request, JsonResponse(payload))
+
+
+def mvp_by_position_view(request):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    season = request.GET.get("season")
+    if not season:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season is required."}, status=400),
+        )
+
+    try:
+        season = int(season)
+    except ValueError:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season must be an integer."}, status=400),
+        )
+
+    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    if not csv_path.exists():
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Season data not found."}, status=404),
+        )
+
+    best_by_position = {}
+    with csv_path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            position = (row.get("position") or "").strip()
+            if not position:
+                continue
+            raw = row.get("fantasy_points_ppr")
+            if raw is None or raw == "":
+                continue
+            try:
+                points = float(raw)
+            except ValueError:
+                continue
+            current = best_by_position.get(position)
+            if current is None or points > current["fantasy_points_ppr"]:
+                best_by_position[position] = {
+                    "player_id": row.get("player_id"),
+                    "player_name": row.get("player_name"),
+                    "player_display_name": row.get("player_display_name"),
+                    "position": position,
+                    "recent_team": row.get("recent_team"),
+                    "fantasy_points_ppr": points,
+                    "headshot_url": row.get("headshot_url"),
+                }
+
+    if not best_by_position:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "No fantasy points found."}, status=404),
+        )
+
+    return add_cors_headers(
+        request,
+        JsonResponse({"season": season, "mvps": best_by_position}),
+    )
+
+
+def games_view(request):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    def parse_multi_int(value):
+        if not value:
+            return []
+        return [int(v) for v in value.split(",") if v.strip().isdigit()]
+
+    def parse_multi_str(value):
+        if not value:
+            return []
+        return [v.strip() for v in value.split(",") if v.strip()]
+
+    def parse_float(value):
+        if value is None or value == "":
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            return None
+
+    def parse_bool(value):
+        if value is None or value == "":
+            return None
+        value = value.lower()
+        if value in {"true", "1", "yes"}:
+            return True
+        if value in {"false", "0", "no"}:
+            return False
+        return None
+
+    filters = {
+        "seasons": parse_multi_int(request.GET.get("season")),
+        "weeks": parse_multi_int(request.GET.get("week")),
+        "team": request.GET.get("team"),
+        "game_types": parse_multi_str(request.GET.get("game_type")),
+        "div_game": parse_bool(request.GET.get("div_game")),
+        "spread_min": parse_float(request.GET.get("spread_min")),
+        "spread_max": parse_float(request.GET.get("spread_max")),
+        "total_min": parse_float(request.GET.get("total_min")),
+        "total_max": parse_float(request.GET.get("total_max")),
+        "roof": parse_multi_str(request.GET.get("roof")),
+        "surface": parse_multi_str(request.GET.get("surface")),
+        "temp_min": parse_float(request.GET.get("temp_min")),
+        "temp_max": parse_float(request.GET.get("temp_max")),
+        "wind_min": parse_float(request.GET.get("wind_min")),
+        "wind_max": parse_float(request.GET.get("wind_max")),
+    }
+
+    data = fetch_games(filters)
+    return add_cors_headers(request, JsonResponse(data))
 
 
 def add_cors_headers(request, response):

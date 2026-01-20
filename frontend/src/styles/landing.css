@@ -12,7 +12,7 @@
 }
 
 .metrics-grid div {
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgb(var(--color-border-light-rgb));
   padding: 20px;
   border-radius: 8px;
 }

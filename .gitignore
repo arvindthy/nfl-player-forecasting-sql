@@ -46,9 +46,12 @@ build/
 .eggs/
 *.egg-info/
 
+# Allow committing frontend build artifacts
+!frontend/dist/
+!frontend/dist/**
+
 # ----------------------
 # Jupyter / Experiments
 # ----------------------
 .ipynb_checkpoints/
 .python-version
-

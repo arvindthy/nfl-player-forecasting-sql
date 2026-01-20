@@ -1,0 +1,45 @@
+// Royal Purple (Regal/Vikings/Ravens) Deep purple and gold. Very distinctive and rich.
+import type { Theme } from '../types';
+export const royalPurple: Theme = {
+  id: "royal-purple",
+  name: "Royal Purple",
+  type: 'dark',
+  variables: {
+    "--font-body": "\"Barlow\", system-ui, sans-serif",
+    "--font-display": "\"Bebas Neue\", sans-serif",
+    "--color-bg": "#1e1b4b",
+    "--color-bg-rgb": "30, 27, 75",
+    "--color-surface-rgb": "49, 46, 129",
+    "--color-surface-2-rgb": "67, 56, 202",
+    "--color-surface-3-rgb": "250, 204, 21",
+    "--color-surface-4-rgb": "234, 179, 8",
+    "--color-surface-5-rgb": "202, 138, 4",
+    "--color-ambient-1-rgb": "250, 204, 21",
+    "--color-ambient-2-rgb": "199, 210, 254",
+    "--color-border-rgb": "255, 255, 102", //"99, 102, 241",
+    "--color-label-rgb": "255, 255, 102", //"199, 210, 254",
+    "--color-kpi-label-rgb": "255, 255, 102", //"199, 210, 254",
+    "--color-text-rgb": "255, 255, 255",
+    "--color-text-muted-rgb": "199, 210, 254",
+    "--color-text-dim-rgb": "165, 180, 252",
+    "--color-accent-rgb": "250, 204, 21",      // Yellow/Gold
+    "--color-accent-2-rgb": "253, 224, 71",    // Light Yellow
+    "--color-accent-3-rgb": "79, 70, 229",     // Indigo
+    "--color-warning-rgb": "249, 115, 22",
+    "--color-success-rgb": "34, 197, 94",
+    "--color-info-rgb": "56, 189, 248",
+    "--color-purple-rgb": "192, 132, 252",
+    "--color-warning-text-rgb": "255, 237, 213",
+    "--color-success-text-rgb": "220, 252, 231",
+    "--color-purple-text-rgb": "243, 232, 255",
+    "--color-info-text-rgb": "224, 242, 254",
+    "--color-shadow-rgb": "17, 24, 39",
+    "--color-white-rgb": "255, 255, 255",
+    "--color-ink-rgb": "49, 46, 129",
+    "--color-ink-strong-rgb": "30, 27, 75",
+    "--color-slate-rgb": "165, 180, 252",
+    "--color-slate-strong-rgb": "129, 140, 248",
+    "--color-border-light-rgb": "129, 140, 248",
+    "--color-surface-light-rgb": "255, 255, 255",
+  },
+};
