@@ -8,6 +8,8 @@ import { slateTactical } from './definitions/slateTactical';
 import { blitzOrange } from './definitions/blitzOrange';
 import { royalPurple } from './definitions/royalPurple';
 import { awayJersey } from './definitions/awayJersey';
+import { desertHeat } from './definitions/desertHeat';
+import { deepSea } from './definitions/deepSea';
 import type { Theme } from './types';
 
 export const themes: Theme[] = [
@@ -21,6 +23,8 @@ export const themes: Theme[] = [
   blitzOrange,
   royalPurple,
   awayJersey,
+  desertHeat,
+  deepSea,
 ];
 
 export const defaultThemeId = midnightPro.id;

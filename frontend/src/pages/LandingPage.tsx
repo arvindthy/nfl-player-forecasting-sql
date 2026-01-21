@@ -95,6 +95,17 @@ export default function LandingPage() {
     }));
   }, [weeklyMae]);
 
+  const latestSeason = useMemo(() => {
+    if (!overview?.seasons?.length) return null;
+    return Math.max(...overview.seasons);
+  }, [overview]);
+
+  const latestWeekMae = useMemo(() => {
+    if (!activeWeek) return null;
+    const point = weeklyChart.find((entry) => entry.week === activeWeek);
+    return point?.mae ?? null;
+  }, [activeWeek, weeklyChart]);
+
   if (error) return <p className="error">Error: {error}</p>;
   if (!overview || !metrics || !metricsByPosition || !weeklyMae || !mvp || !mvpsByPosition) {
     return <p className="loading">Loading analytics…</p>;
@@ -137,6 +148,11 @@ export default function LandingPage() {
         <div className="metric-card">
           <h3>Positions Tracked</h3>
           <p>{overview.positions.join(" · ")}</p>
+        </div>
+
+        <div className="metric-card">
+          <h3>Weeks Tracked</h3>
+          <p>{weeklyMae.weekly_mae.length}</p>
         </div>
 
         <div className="metric-card highlight">
@@ -223,6 +239,48 @@ export default function LandingPage() {
                 <strong>{bar.mae.toFixed(2)}</strong>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="analytics-card">
+          <div className="card-header">
+            <h3>Bias Snapshot</h3>
+            <p>Shows whether each model tends to over- or under-predict.</p>
+          </div>
+          <div className="metric-grid">
+            <div>
+              <span>Weighted Bias</span>
+              <strong>{toNumber(metrics.metrics.bias.weighted)?.toFixed(2) ?? "—"}</strong>
+            </div>
+            <div>
+              <span>Enhanced Bias</span>
+              <strong>{toNumber(metrics.metrics.bias.enhanced)?.toFixed(2) ?? "—"}</strong>
+            </div>
+            <div>
+              <span>Season</span>
+              <strong>{latestSeason}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="analytics-card">
+          <div className="card-header">
+            <h3>Latest Week MAE</h3>
+            <p>Most recent weekly error check.</p>
+          </div>
+          <div className="metric-grid">
+            <div>
+              <span>Week</span>
+              <strong>{activeWeek ?? "—"}</strong>
+            </div>
+            <div>
+              <span>MAE</span>
+              <strong>{latestWeekMae !== null ? latestWeekMae.toFixed(2) : "—"}</strong>
+            </div>
+            <div>
+              <span>Season</span>
+              <strong>{latestSeason}</strong>
+            </div>
           </div>
         </div>
 

@@ -22,4 +22,10 @@ urlpatterns = [
     path("mvp/", views.token_auth_required(views.mvp_view), name="analytics-mvp"),
     path("mvp/by-position/", views.token_auth_required(views.mvp_by_position_view), name="analytics-mvp-by-position"),
     path("games/", views.token_auth_required(views.games_view), name="analytics-games"),
+    path("teams/", views.token_auth_required(views.teams_view), name="analytics-teams"),
+    path(
+        "teams/<str:team_code>/roster/",
+        views.token_auth_required(views.team_roster_view),
+        name="analytics-team-roster",
+    ),
 ]

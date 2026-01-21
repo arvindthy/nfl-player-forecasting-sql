@@ -19,6 +19,9 @@ from .services.queries import (
     fetch_filters,
     fetch_weekly_mae,
     fetch_games,
+    fetch_team_codes,
+    fetch_team_roster,
+    fetch_postseason_games,
 )
 
 def overview_view(request):
@@ -464,6 +467,218 @@ def games_view(request):
 
     data = fetch_games(filters)
     return add_cors_headers(request, JsonResponse(data))
+
+def teams_view(request):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    season = request.GET.get("season")
+    if not season:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season is required."}, status=400),
+        )
+
+    try:
+        season = int(season)
+    except ValueError:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season must be an integer."}, status=400),
+        )
+
+    team_codes = fetch_team_codes(season)
+    team_meta = load_team_metadata()
+    postseason_games = fetch_postseason_games(season)
+    honors = build_postseason_honors(postseason_games, team_meta)
+    payload = []
+    for code in team_codes:
+        meta = team_meta.get(code.upper(), {})
+        payload.append(
+            {
+                "code": code,
+                "name": meta.get("name") or code,
+                "city": meta.get("city", ""),
+                "conference": meta.get("conference", ""),
+                "division": meta.get("division", ""),
+                "description": None,
+            }
+        )
+
+    return add_cors_headers(
+        request,
+        JsonResponse(
+            {
+                "season": season,
+                "teams": payload,
+                "honors": honors,
+            }
+        ),
+    )
+
+
+def team_roster_view(request, team_code):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    season = request.GET.get("season")
+    if not season:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season is required."}, status=400),
+        )
+
+    try:
+        season = int(season)
+    except ValueError:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "season must be an integer."}, status=400),
+        )
+
+    team_code = team_code.upper()
+    team_meta = load_team_metadata()
+    if team_code not in team_meta:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Team not found."}, status=404),
+        )
+
+    position_order = ["QB", "RB", "WR", "TE"]
+    def role_hint(position, index):
+        if position == "QB":
+            return "Starter" if index == 0 else "Backup"
+        if position in {"RB", "WR"}:
+            if index == 0:
+                return "Starter"
+            if index in {1, 2}:
+                return "Committee"
+            return "Backup"
+        if position == "TE":
+            return "Starter" if index == 0 else "Backup"
+        return "Backup"
+
+    raw_roster = fetch_team_roster(season, team_code)
+    roster = []
+    for position in position_order:
+        players = [data for data in raw_roster if data["position"] == position]
+        players.sort(
+            key=lambda player: (
+                -player.get("fantasy_points_ppr", 0),
+                player["player_display_name"],
+            )
+        )
+        for index, player in enumerate(players):
+            roster.append(
+                {
+                    **player,
+                    "role_hint": role_hint(position, index),
+                    "rank_in_position": index + 1,
+                }
+            )
+
+    return add_cors_headers(
+        request,
+        JsonResponse(
+            {
+                "season": season,
+                "team": {
+                    "code": team_code,
+                    "name": team_meta[team_code].get("name") or team_code,
+                    "city": team_meta[team_code].get("city", ""),
+                    "conference": team_meta[team_code].get("conference", ""),
+                    "division": team_meta[team_code].get("division", ""),
+                },
+                "roster": roster,
+            }
+        ),
+    )
+
+
+def load_team_metadata():
+    csv_path = (
+        Path(settings.BASE_DIR)
+        / "data"
+        / "raw"
+        / "games"
+        / "teams_colors_logos.csv"
+    )
+    if not csv_path.exists():
+        return {}
+
+    meta = {}
+    with csv_path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            code = (row.get("team_abbr") or "").strip().upper()
+            if not code:
+                continue
+            division_raw = (row.get("team_division") or "").strip()
+            if division_raw.startswith("AFC "):
+                division = division_raw.replace("AFC ", "", 1)
+            elif division_raw.startswith("NFC "):
+                division = division_raw.replace("NFC ", "", 1)
+            else:
+                division = division_raw
+
+            meta[code] = {
+                "name": row.get("team_name", "").strip(),
+                "city": row.get("team_name", "").strip(),
+                "conference": (row.get("team_conf") or "").strip(),
+                "division": division,
+            }
+    alias_map = {
+        "LA": "LAR",
+        "STL": "LAR",
+        "SD": "LAC",
+        "OAK": "LV",
+        "WSH": "WAS",
+    }
+    for alias, canonical in alias_map.items():
+        if alias not in meta and canonical in meta:
+            meta[alias] = meta[canonical]
+    return meta
+
+
+def build_postseason_honors(postseason_games, team_meta):
+    def winner(game):
+        if game["home_score"] is None or game["away_score"] is None:
+            return None
+        return (
+            game["home_team"]
+            if game["home_score"] > game["away_score"]
+            else game["away_team"]
+        )
+
+    honors = {
+        "super_bowl": None,
+        "afc_champion": None,
+        "nfc_champion": None,
+    }
+
+    for game in postseason_games:
+        champ = winner(game)
+        if champ is None:
+            continue
+        if game["game_type"] == "SB":
+            honors["super_bowl"] = champ
+            continue
+        if game["game_type"] == "CON":
+            home_conf = team_meta.get(game["home_team"], {}).get("conference")
+            away_conf = team_meta.get(game["away_team"], {}).get("conference")
+            conference = home_conf or away_conf
+            if conference == "AFC":
+                honors["afc_champion"] = champ
+            elif conference == "NFC":
+                honors["nfc_champion"] = champ
+
+    return honors
 
 
 def add_cors_headers(request, response):

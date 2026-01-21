@@ -189,3 +189,30 @@ export async function fetchGames(params: Record<string, string>) {
 
   return res.json();
 }
+
+export async function fetchTeams(season: number) {
+  const params = new URLSearchParams({ season: season.toString() });
+  const res = await fetch(`${API_BASE}/api/v1/analytics/teams/?${params.toString()}`, {
+    headers: buildAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch teams (${res.status})`);
+  }
+
+  return res.json();
+}
+
+export async function fetchTeamRoster(season: number, teamCode: string) {
+  const params = new URLSearchParams({ season: season.toString() });
+  const res = await fetch(
+    `${API_BASE}/api/v1/analytics/teams/${teamCode}/roster/?${params.toString()}`,
+    { headers: buildAuthHeaders() }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch team roster (${res.status})`);
+  }
+
+  return res.json();
+}

@@ -401,3 +401,91 @@ def fetch_games(filters):
     }
 
     return {"summary": summary, "results": results}
+
+
+def fetch_team_codes(season):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT DISTINCT team_code
+            FROM (
+                SELECT home_team AS team_code
+                FROM raw.nflverse_games
+                WHERE season = %s
+                UNION
+                SELECT away_team AS team_code
+                FROM raw.nflverse_games
+                WHERE season = %s
+            ) teams
+            ORDER BY team_code;
+            """,
+            [season, season],
+        )
+        return [row[0] for row in cursor.fetchall()]
+
+
+def fetch_team_roster(season, team_code):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                player_name,
+                player_display_name,
+                position,
+                team,
+                SUM(fantasy_points_ppr) AS fantasy_points_ppr
+            FROM analytics.player_game_facts_ppr
+            WHERE season = %s
+              AND team = %s
+              AND position IN ('QB', 'RB', 'WR', 'TE')
+            GROUP BY player_name, player_display_name, position, team
+            ORDER BY position, fantasy_points_ppr DESC, player_display_name;
+            """,
+            [season, team_code],
+        )
+        rows = cursor.fetchall()
+        return [
+            {
+                "player_name": row[0],
+                "player_display_name": row[1],
+                "position": row[2],
+                "team": row[3],
+                "fantasy_points_ppr": float(row[4]) if row[4] is not None else 0.0,
+            }
+            for row in rows
+        ]
+
+
+def fetch_postseason_games(season):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                week,
+                game_type,
+                home_team,
+                away_team,
+                home_score,
+                away_score
+            FROM raw.nflverse_games
+            WHERE season = %s
+              AND (
+                game_type = 'SB'
+                OR game_type = 'CON'
+              )
+            ORDER BY week;
+            """,
+            [season],
+        )
+        rows = cursor.fetchall()
+        return [
+            {
+                "week": row[0],
+                "game_type": row[1],
+                "home_team": row[2],
+                "away_team": row[3],
+                "home_score": row[4],
+                "away_score": row[5],
+            }
+            for row in rows
+        ]

@@ -4,29 +4,56 @@ export default function AboutPage() {
       <div className="section-header">
         <p className="section-eyebrow">About Me</p>
         <h2>Builder Notes</h2>
-        <p>Fantasy forecasting powered by research, film notes, and data systems.</p>
+        <p>
+          An end-to-end NFL fantasy forecasting platform built to turn raw game data
+          into structured weekly decisions.
+        </p>
       </div>
 
       <div className="about-card">
         <p>
-          I build weekly forecasting tools that blend play-level data, team context,
-          and usage trends to surface confident fantasy decisions. The goal is
-          simple: translate noisy stats into crisp, actionable insights every week.
+          This project is a hands-on exploration of sports analytics, data modeling,
+          and decision systems. I designed and built the platform end-to-end — from
+          ingesting raw NFL data to presenting week-by-week forecasts through a
+          fast, interactive UI.
         </p>
+
+        <p>
+          The core challenge is not data scarcity, but noise. NFL stats are deeply
+          contextual: usage changes weekly, matchups matter, and box scores often
+          hide more than they reveal. This system focuses on structuring that chaos
+          into stable signals that support confident fantasy decisions.
+        </p>
+
         <div className="about-meta">
           <div>
-            <span>Focus</span>
-            <strong>NFL Fantasy (PPR)</strong>
+            <span>Domain Focus</span>
+            <strong>NFL Fantasy Forecasting (PPR)</strong>
           </div>
           <div>
-            <span>Data Stack</span>
-            <strong>SQL, Python, Pandas</strong>
+            <span>Data & Modeling</span>
+            <strong>PostgreSQL, Python, Pandas</strong>
           </div>
           <div>
-            <span>Workflow</span>
-            <strong>Modeling + Game Film</strong>
+            <span>Backend</span>
+            <strong>Django, Read-only APIs</strong>
+          </div>
+          <div>
+            <span>Frontend</span>
+            <strong>React, TypeScript, Custom Dashboards</strong>
+          </div>
+          <div>
+            <span>Approach</span>
+            <strong>Data Engineering + Game Context</strong>
           </div>
         </div>
+
+        <p className="about-footnote">
+          Beyond fantasy football, this project serves as a practical showcase of how
+          I approach ambiguous data problems: model the domain carefully, favor
+          interpretable signals over black boxes, and design systems that scale
+          cleanly as complexity increases.
+        </p>
       </div>
     </section>
   );
