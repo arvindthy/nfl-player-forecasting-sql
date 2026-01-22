@@ -588,7 +588,7 @@
 
 .about-bio p {
   margin: 0 0 3px;
-  color: rgba(var(--color-text-muted-rgb), 0.85);
+  color: rgba(var(--color-text-muted-rgb), 1);
 }
 
 .about-kicker {
@@ -627,13 +627,13 @@
 }
 
 .about-location {
-  color: rgba(var(--color-text-muted-rgb), 0.85);
+  color: rgba(var(--color-text-muted-rgb), 1);
   font-size: 0.95rem;
 }
 
 .about-footnote {
   margin: 0;
-  color: rgba(var(--color-text-muted-rgb), 0.75);
+  color: rgba(var(--color-text-muted-rgb), 1);
   font-size: 0.95rem;
 }
 
@@ -659,21 +659,23 @@
 }
 
 .architecture-stage:hover {
-  transform: translateY(-4px);
+  transform: translateY(0px);
   border-color: rgba(var(--color-accent-3-rgb), 0.5);
+  background: rgba(var(--color-accent-2-rgb), 0.10);
   box-shadow: 0 16px 30px rgba(var(--color-shadow-rgb), 0.2);
 }
 
 .stage-title {
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  font-size: 0.65rem;
-  color: rgba(var(--color-text-muted-rgb), 0.7);
+  font-size: 0.9rem;
+  color: rgba(var(--color-text-muted-rgb), 1);
 }
 
 .stage-tile {
   padding: 10px 12px;
   border-radius: 12px;
+  font-size: 1rem;
   background: rgba(var(--color-surface-2-rgb), 0.75);
   border: 1px solid rgba(var(--color-border-rgb), 0.2);
   font-weight: 600;
@@ -717,11 +719,13 @@
 
 .tile-modal-header h3 {
   margin: 4px 0;
+  color: rgba(var(--color-accent-rgb), 1.0);
+  font-size: 1.3rem;
 }
 
 .tile-modal-summary {
   margin: 0;
-  color: rgba(var(--color-text-muted-rgb), 0.8);
+  color: rgba(var(--color-text-muted-rgb), 1.0);
   font-size: 0.95rem;
 }
 
@@ -732,18 +736,19 @@
 
 .tile-section h4 {
   margin: 0 0 6px;
-  font-size: 1rem;
+  letter-spacing: 0.12em;
+  font-size: 1.0rem;
 }
 
 .tile-section p {
   margin: 0;
-  color: rgba(var(--color-text-muted-rgb), 0.85);
+  color: rgba(var(--color-text-muted-rgb), 1.0);
 }
 
 .tile-section ul {
   margin: 8px 0 0;
   padding-left: 18px;
-  color: rgba(var(--color-text-muted-rgb), 0.8);
+  color: rgba(var(--color-text-muted-rgb), 1.0);
 }
 
 .tile-code {
@@ -1370,8 +1375,8 @@ tbody tr:hover {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 0.65rem;
-  color: rgba(var(--color-text-muted-rgb), 0.6);
+  font-size: 1rem;
+  color: rgba(var(--color-text-muted-rgb), 1.0);
 }
 
 .modal-close {
