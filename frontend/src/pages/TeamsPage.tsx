@@ -209,7 +209,7 @@ export default function TeamsPage() {
           return (
             <Link
               key={team.code}
-              to={`/teams/${team.code}`}
+              to={`/teams/${team.code}?season=${season ?? ""}`}
               className="team-card"
             >
               <div className="team-card-top">

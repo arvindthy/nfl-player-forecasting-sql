@@ -125,12 +125,6 @@ export default function LandingPage() {
     return overview.seasons.filter((season) => season <= 2024);
   }, [overview]);
 
-  const latestWeekMae = useMemo(() => {
-    if (!activeWeek) return null;
-    const point = weeklyChart.find((entry) => entry.week === activeWeek);
-    return point?.mae ?? null;
-  }, [activeWeek, weeklyChart]);
-
   const lastUpdatedLabel = useMemo(() => {
     if (!overview?.last_updated) return null;
     const parsed = new Date(overview.last_updated);
@@ -401,22 +395,45 @@ export default function LandingPage() {
 
         <div className="analytics-card">
           <div className="card-header">
-            <h3>Latest Week MAE</h3>
-            <p>Most recent weekly error check.</p>
+            <h3>How Our Forecast PPR Is Built</h3>
+            <p>Position-specific formulas, simplified for quick scanning.</p>
           </div>
-          <div className="metric-grid">
-            <div>
-              <span>Week</span>
-              <strong>{activeWeek ?? "—"}</strong>
+          <div className="forecast-blurb">
+            <div className="formula-grid">
+              <div className="formula-card base-card">
+                <span>Base (All Positions)</span>
+                <strong>
+                  0.6 × PPR avg (last 3) + 0.3 × PPR avg (last 5) + 0.1 × PPR avg (last 8)
+                </strong>
+              </div>
+              <div className="formula-card">
+                <span>QB</span>
+                <strong>
+                  Base + 0.05 × pass attempts (last 3) + 0.10 × rush attempts (last 3)
+                </strong>
+              </div>
+              <div className="formula-card">
+                <span>RB</span>
+                <strong>
+                  Base + 0.15 × carries (last 3) + 0.20 × targets (last 3)
+                </strong>
+              </div>
+              <div className="formula-card">
+                <span>WR</span>
+                <strong>
+                  Base + 0.30 × targets (last 3)
+                </strong>
+              </div>
+              <div className="formula-card">
+                <span>TE</span>
+                <strong>
+                  Base + 0.25 × targets (last 3)
+                </strong>
+              </div>
             </div>
-            <div>
-              <span>MAE</span>
-              <strong>{latestWeekMae !== null ? latestWeekMae.toFixed(2) : "—"}</strong>
-            </div>
-            <div>
-              <span>Season</span>
-              <strong>{latestSeason}</strong>
-            </div>
+            <p className="forecast-note">
+              Each term is calculated from recent games; the base score is shared, then position-specific usage adds lift.
+            </p>
           </div>
         </div>
 

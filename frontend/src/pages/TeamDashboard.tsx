@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchFilters, fetchTeamRoster, fetchTeams } from "@/lib/api";
 import type { FiltersResponse } from "@/types/filters";
 import type { TeamRosterPlayer, TeamRosterResponse, TeamSummary } from "@/types/teams";
@@ -19,6 +19,7 @@ const groupByPosition = (players: TeamRosterPlayer[]) => {
 
 export default function TeamDashboard() {
   const { teamCode } = useParams();
+  const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState<FiltersResponse | null>(null);
   const [season, setSeason] = useState<number | null>(2024);
   const [team, setTeam] = useState<TeamSummary | null>(null);
@@ -27,14 +28,24 @@ export default function TeamDashboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const seasonParam = searchParams.get("season");
+    const hasSeasonParam = Boolean(seasonParam);
+    if (seasonParam) {
+      const parsed = Number(seasonParam);
+      if (Number.isFinite(parsed)) {
+        setSeason(parsed);
+      }
+    }
     fetchFilters()
       .then((data) => {
         setFilters(data);
-        const latestSeason = data.seasons[data.seasons.length - 1];
-        setSeason(latestSeason);
+        if (!hasSeasonParam) {
+          const latestSeason = data.seasons[data.seasons.length - 1];
+          setSeason(latestSeason);
+        }
       })
       .catch((err) => setError(err.message));
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!season) return;

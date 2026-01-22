@@ -812,6 +812,66 @@
   color: rgba(var(--color-text-muted-rgb), 0.85);
 }
 
+.forecast-blurb {
+  display: grid;
+  gap: 10px;
+  color: rgba(var(--color-text-muted-rgb), 0.85);
+}
+
+.forecast-blurb p {
+  margin: 0;
+}
+
+.forecast-blurb ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.formula-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--color-border-rgb), 0.2);
+  background: rgba(var(--color-surface-2-rgb), 0.6);
+  display: grid;
+  gap: 6px;
+}
+
+.formula-card.base-card {
+  grid-column: 1 / -1;
+}
+
+.formula-card span {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.65rem;
+  color: rgba(var(--color-text-muted-rgb), 0.8);
+}
+
+.formula-card strong {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: rgb(var(--color-text-rgb));
+  word-break: break-word;
+}
+
+.forecast-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(var(--color-text-muted-rgb), 0.8);
+}
+
+@media (max-width: 900px) {
+  .formula-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .about-section + .about-section {
   margin-top: 18px;
   padding-top: 18px;
