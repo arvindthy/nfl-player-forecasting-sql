@@ -267,6 +267,7 @@ tbody tr:hover {
   box-shadow: 0 22px 50px rgba(var(--color-shadow-rgb), 0.35);
   border: 1px solid rgba(var(--color-border-rgb), 0.2);
   animation: rise 0.7s ease both;
+  overflow-x: auto;
 }
 
 table {
@@ -312,6 +313,27 @@ tbody tr:hover {
 
 .clickable-row {
   cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .table-card {
+    padding: 10px 12px 14px;
+  }
+
+  .forecast-table {
+    min-width: 560px;
+    table-layout: auto;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
+    font-size: 0.82rem;
+  }
+
+  th {
+    font-size: 0.65rem;
+  }
 }
 
 .loading,

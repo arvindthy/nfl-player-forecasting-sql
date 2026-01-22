@@ -353,6 +353,38 @@
   font-size: 0.85rem;
 }
 
+@media (max-width: 720px) {
+  .mvp-card {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .mvp-card img {
+    width: 88px;
+    height: 88px;
+  }
+
+  .mvp-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mvp-mini-card {
+    grid-template-columns: 56px 1fr;
+    gap: 12px;
+  }
+
+  .mvp-mini-card img {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mvp-mini-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .home-analytics {
   display: grid;
   gap: 20px;
