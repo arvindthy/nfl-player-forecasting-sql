@@ -44,7 +44,8 @@ export default function TeamsPage() {
           new Set([...(data.seasons ?? []), ...SEASONS])
         ).sort((a, b) => a - b);
         const latestSeason = mergedSeasons[mergedSeasons.length - 1];
-        setSeason(latestSeason);
+		// Set the season to 2024 if available, else latest
+        setSeason(mergedSeasons.includes(2024) ? 2024 : latestSeason);
       })
       .catch((err) => setError(err.message));
   }, []);

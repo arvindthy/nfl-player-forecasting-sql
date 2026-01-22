@@ -20,7 +20,7 @@ const groupByPosition = (players: TeamRosterPlayer[]) => {
 export default function TeamDashboard() {
   const { teamCode } = useParams();
   const [filters, setFilters] = useState<FiltersResponse | null>(null);
-  const [season, setSeason] = useState<number | null>(null);
+  const [season, setSeason] = useState<number | null>(2024);
   const [team, setTeam] = useState<TeamSummary | null>(null);
   const [roster, setRoster] = useState<TeamRosterPlayer[]>([]);
   const [positionFilter, setPositionFilter] = useState<string>("ALL");

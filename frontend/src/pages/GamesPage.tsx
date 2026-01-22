@@ -175,7 +175,7 @@ export default function GamesPage() {
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [showOvertimeModal, setShowOvertimeModal] = useState(false);
 
-  const [season, setSeason] = useState<number[]>([2025]);
+  const [season, setSeason] = useState<number[]>([2024]);
   const [week, setWeek] = useState<number[]>([]);
   const [team, setTeam] = useState<string>("");
   const [divGame, setDivGame] = useState<string>("all");

@@ -679,6 +679,99 @@
   font-weight: 600;
 }
 
+.stage-tile.tile-button {
+  appearance: none;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  cursor: pointer;
+  background: rgba(var(--color-surface-2-rgb), 0.9);
+  color: inherit;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.stage-tile.tile-button:hover {
+  background: rgba(var(--color-accent-3-rgb), 0.25);
+}
+
+.stage-tile.tile-button:focus-visible {
+  outline: 2px solid rgba(var(--color-accent-rgb), 0.9);
+  outline-offset: 2px;
+}
+
+.tile-modal {
+  width: min(860px, 95vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 32px;
+  display: grid;
+  gap: 18px;
+  position: relative;
+  background: rgb(var(--color-surface-rgb));
+  border-radius: 24px;
+  border: 1px solid rgba(var(--color-border-rgb), 0.25);
+  box-shadow: 0 40px 80px rgba(var(--color-shadow-rgb), 0.45);
+}
+
+.tile-modal-header h3 {
+  margin: 4px 0;
+}
+
+.tile-modal-summary {
+  margin: 0;
+  color: rgba(var(--color-text-muted-rgb), 0.8);
+  font-size: 0.95rem;
+}
+
+.tile-modal-body {
+  display: grid;
+  gap: 18px;
+}
+
+.tile-section h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.tile-section p {
+  margin: 0;
+  color: rgba(var(--color-text-muted-rgb), 0.85);
+}
+
+.tile-section ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: rgba(var(--color-text-muted-rgb), 0.8);
+}
+
+.tile-code {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(var(--color-surface-2-rgb), 0.4);
+  border: 1px solid rgba(var(--color-border-rgb), 0.2);
+  overflow-x: auto;
+}
+
+.tile-code code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Courier, monospace;
+  font-size: 0.85rem;
+  white-space: pre;
+}
+
+.tile-diagram {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(var(--color-accent-3-rgb), 0.12);
+  border: 1px dashed rgba(var(--color-accent-3-rgb), 0.5);
+  font-family: "Inter", "SF Pro Display", system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: rgba(var(--color-accent-rgb), 0.9);
+}
+
 .architecture-footnote {
   margin: 0;
   color: rgba(var(--color-text-muted-rgb), 0.8);
