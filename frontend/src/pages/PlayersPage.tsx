@@ -95,6 +95,7 @@ export default function PlayersPage() {
                 <th>Player</th>
                 <th>Team</th>
                 <th>Projected PPR</th>
+                <th>Actual PPR</th>
               </tr>
             </thead>
             <tbody>
@@ -104,6 +105,11 @@ export default function PlayersPage() {
                   <td>{row.player_name}</td>
                   <td>{row.team}</td>
                   <td>{Number(row.forecast_ppr_points).toFixed(2)}</td>
+                  <td>
+                    {row.actual_ppr_points != null
+                      ? Number(row.actual_ppr_points).toFixed(2)
+                      : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { fetchFilters, fetchPlayerDetails } from "@/lib/api";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import type { FiltersResponse } from "@/types/filters";
@@ -18,8 +18,17 @@ export default function PlayerProfilePage() {
   const team = searchParams.get("team") || undefined;
   const position = searchParams.get("position") || undefined;
   const from = searchParams.get("from");
+  const navigate = useNavigate();
   const backHref = from === "forecasting" ? "/forecasting" : "/teams";
   const backLabel = from === "forecasting" ? "Back to Forecast Explorer" : "Back to Teams";
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate(backHref);
+  };
 
   useEffect(() => {
     const seasonParam = searchParams.get("season");
@@ -41,10 +50,36 @@ export default function PlayerProfilePage() {
     setDetailsLoading(true);
     setDetailsError(null);
 
-    fetchPlayerDetails(season, decodedPlayer, team || undefined, position || undefined)
-      .then(setPlayerDetails)
-      .catch((err) => setDetailsError(err.message))
-      .finally(() => setDetailsLoading(false));
+    const loadDetails = async () => {
+      try {
+        const response = await fetchPlayerDetails(
+          season,
+          decodedPlayer,
+          team || undefined,
+          position || undefined
+        );
+        setPlayerDetails(response);
+      } catch (err) {
+        if (team || position) {
+          try {
+            const fallback = await fetchPlayerDetails(season, decodedPlayer);
+            setPlayerDetails(fallback);
+            return;
+          } catch (fallbackErr) {
+            const message =
+              fallbackErr instanceof Error ? fallbackErr.message : "Failed to load player details.";
+            setDetailsError(message);
+            return;
+          }
+        }
+        const message = err instanceof Error ? err.message : "Failed to load player details.";
+        setDetailsError(message);
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+
+    loadDetails();
   }, [season, decodedPlayer, team, position]);
 
   return (
@@ -55,7 +90,14 @@ export default function PlayerProfilePage() {
         <p>Seasonal splits and situational context, pulled from the forecast dataset.</p>
       </div>
 
-      <Link className="back-link" to={backHref}>
+      <Link
+        className="back-link"
+        to={backHref}
+        onClick={(event) => {
+          event.preventDefault();
+          handleBack();
+        }}
+      >
         ← {backLabel}
       </Link>
 

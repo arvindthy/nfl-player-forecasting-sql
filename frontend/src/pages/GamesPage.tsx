@@ -3,7 +3,7 @@ import { fetchGames } from "@/lib/api";
 import type { GamesResponse, GameRow } from "@/types/games";
 import { TEAM_LOGOS } from "@/lib/teamLogos";
 
-const SEASONS = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
+const SEASONS = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
 
 
@@ -160,7 +160,7 @@ export default function GamesPage() {
   const [selectedGame, setSelectedGame] = useState<GameRow | null>(null);
   const [showOvertimeModal, setShowOvertimeModal] = useState(false);
 
-  const [season, setSeason] = useState<number[]>([2024]);
+  const [season, setSeason] = useState<number[]>([2025]);
   const [week, setWeek] = useState<number[]>([]);
   const [team, setTeam] = useState<string>("");
   const [divGame, setDivGame] = useState<string>("all");
@@ -276,12 +276,94 @@ export default function GamesPage() {
     return { highest, blowout, upset, overtimeCount };
   }, [results]);
 
+  const quickSeasonValue = season.length ? String(season[0]) : "all";
+  const quickWeekValue = week.length ? String(week[0]) : "all";
+  const quickTeamValue = team ? team.toUpperCase() : "all";
+  const quickDivValue = divGame;
+
+  const snapshotTitle = season.length
+    ? season.length === 1
+      ? `${season[0]} games`
+      : `${season[0]}–${season[season.length - 1]} games`
+    : "All games";
+
   return (
     <section className="section games-dashboard">
       <div className="section-header">
         <p className="section-eyebrow">Games</p>
         <h2>Games Dashboard</h2>
         <p>Filter and scan matchups across seasons, spreads, and conditions.</p>
+      </div>
+
+      <div className="games-hero">
+        <div>
+          <p className="hero-eyebrow">Teams snapshot</p>
+          <h3>{snapshotTitle}</h3>
+          <p className="subtitle">Quick view of the selected matchup slice.</p>
+        </div>
+        <div className="games-hero-controls">
+          <label className="games-hero-chip">
+            <span>Season</span>
+            <select
+              value={quickSeasonValue}
+              onChange={(event) => {
+                const value = event.target.value;
+                setSeason(value === "all" ? [] : [Number(value)]);
+              }}
+            >
+              <option value="all">All</option>
+              {SEASONS.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="games-hero-chip">
+            <span>Week</span>
+            <select
+              value={quickWeekValue}
+              onChange={(event) => {
+                const value = event.target.value;
+                setWeek(value === "all" ? [] : [Number(value)]);
+              }}
+            >
+              <option value="all">All</option>
+              {WEEKS.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="games-hero-chip">
+            <span>Team</span>
+            <select
+              value={quickTeamValue}
+              onChange={(event) =>
+                setTeam(event.target.value === "all" ? "" : event.target.value)
+              }
+            >
+              <option value="all">All</option>
+              {teams.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="games-hero-chip">
+            <span>Div Game</span>
+            <select
+              value={quickDivValue}
+              onChange={(event) => setDivGame(event.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       {highlights && (
@@ -343,7 +425,7 @@ export default function GamesPage() {
         className="filter-toggle"
         onClick={() => setFiltersOpen((open) => !open)}
       >
-        {filtersOpen ? "Hide Filters" : "Show Filters"}
+        {filtersOpen ? "Hide advanced filters" : "Show advanced filters"}
       </button>
 
       {filtersOpen && (

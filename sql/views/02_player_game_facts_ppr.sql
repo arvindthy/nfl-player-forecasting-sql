@@ -33,5 +33,65 @@ SELECT player_id,
     receiving_tds,
     fantasy_points,
     fantasy_points_ppr,
-    round(passing_yards::numeric / 25.0 + (passing_tds * 4)::numeric - (interceptions * 2)::numeric + rushing_yards::numeric / 10.0 + (rushing_tds * 6)::numeric + (receptions * 1)::numeric + receiving_yards::numeric / 10.0 + (receiving_tds * 6)::numeric, 2) AS ppr_points_calculated
+    round(
+        CASE
+            WHEN season = 2025 THEN
+                CASE
+                    WHEN position = 'QB' THEN
+                        passing_yards::numeric / 25.0
+                        + (passing_tds * 4)::numeric
+                        - (interceptions * 2)::numeric
+                        + rushing_yards::numeric / 10.0
+                        + (rushing_tds * 6)::numeric
+                        + (COALESCE(passing_2pt_conversions, 0) * 2)::numeric
+                        + (COALESCE(rushing_2pt_conversions, 0) * 2)::numeric
+                        - (COALESCE(rushing_fumbles, 0) * 2)::numeric
+                    WHEN position = 'RB' THEN
+                        rushing_yards::numeric / 10.0
+                        + (rushing_tds * 6)::numeric
+                        + (receptions * 1)::numeric
+                        + receiving_yards::numeric / 10.0
+                        + (receiving_tds * 6)::numeric
+                        + (COALESCE(rushing_2pt_conversions, 0) * 2)::numeric
+                        + (COALESCE(receiving_2pt_conversions, 0) * 2)::numeric
+                        - (COALESCE(rushing_fumbles, 0) * 2)::numeric
+                        - (COALESCE(receiving_fumbles, 0) * 2)::numeric
+                    WHEN position IN ('WR', 'TE') THEN
+                        (receptions * 1)::numeric
+                        + receiving_yards::numeric / 10.0
+                        + (receiving_tds * 6)::numeric
+                        + (COALESCE(receiving_2pt_conversions, 0) * 2)::numeric
+                        - (COALESCE(receiving_fumbles, 0) * 2)::numeric
+                    ELSE
+                        passing_yards::numeric / 25.0
+                        + (passing_tds * 4)::numeric
+                        - (interceptions * 2)::numeric
+                        + rushing_yards::numeric / 10.0
+                        + (rushing_tds * 6)::numeric
+                        + (receptions * 1)::numeric
+                        + receiving_yards::numeric / 10.0
+                        + (receiving_tds * 6)::numeric
+                        + (COALESCE(passing_2pt_conversions, 0) * 2)::numeric
+                        + (COALESCE(rushing_2pt_conversions, 0) * 2)::numeric
+                        + (COALESCE(receiving_2pt_conversions, 0) * 2)::numeric
+                        - (COALESCE(rushing_fumbles, 0) * 2)::numeric
+                        - (COALESCE(receiving_fumbles, 0) * 2)::numeric
+                END
+            ELSE
+                passing_yards::numeric / 25.0
+                + (passing_tds * 4)::numeric
+                - (interceptions * 2)::numeric
+                + rushing_yards::numeric / 10.0
+                + (rushing_tds * 6)::numeric
+                + (receptions * 1)::numeric
+                + receiving_yards::numeric / 10.0
+                + (receiving_tds * 6)::numeric
+                + (COALESCE(passing_2pt_conversions, 0) * 2)::numeric
+                + (COALESCE(rushing_2pt_conversions, 0) * 2)::numeric
+                + (COALESCE(receiving_2pt_conversions, 0) * 2)::numeric
+                - (COALESCE(rushing_fumbles, 0) * 2)::numeric
+                - (COALESCE(receiving_fumbles, 0) * 2)::numeric
+        END,
+        2
+    ) AS ppr_points_calculated
    FROM analytics.player_game_facts f;;

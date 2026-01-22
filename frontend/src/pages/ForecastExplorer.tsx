@@ -7,7 +7,7 @@ import "@/styles/forecast.css";
 
 export default function ForecastExplorer() {
   const [filters, setFilters] = useState<FiltersResponse | null>(null);
-  const [season, setSeason] = useState<number | null>(null);
+  const [season, setSeason] = useState<number | null>(2024);
   const [week, setWeek] = useState<number | null>(null);
   const [position, setPosition] = useState<string>("QB");
 
@@ -23,7 +23,7 @@ export default function ForecastExplorer() {
         const latestSeason = seasons[seasons.length - 1];
         const latestWeek = data.weeks[data.weeks.length - 1];
         const defaultPosition = data.positions[0] || "QB";
-        setSeason(latestSeason);
+        setSeason(seasons.includes(2024) ? 2024 : latestSeason);
         setWeek(latestWeek);
         setPosition(defaultPosition);
       })
@@ -144,13 +144,15 @@ export default function ForecastExplorer() {
       {/* Table */}
       {data && data.results.length > 0 && (
         <div className="table-card">
-          <table>
+          <table className="forecast-table">
             <thead>
               <tr>
                 <th>Rank</th>
                 <th>Player</th>
                 <th>Team</th>
+                <th>Actual PPR</th>
                 <th>Forecast PPR</th>
+                <th>Error</th>
               </tr>
             </thead>
             <tbody>
@@ -163,7 +165,19 @@ export default function ForecastExplorer() {
                   <td>{i + 1}</td>
                   <td>{row.player_name}</td>
                   <td>{row.team}</td>
+                  <td>
+                    {row.actual_ppr_points != null
+                      ? Number(row.actual_ppr_points).toFixed(2)
+                      : "—"}
+                  </td>
                   <td>{Number(row.forecast_ppr_points).toFixed(2)}</td>
+                  <td>
+                    {row.actual_ppr_points != null
+                      ? `${Number(row.forecast_ppr_points) - Number(row.actual_ppr_points) >= 0 ? "+" : ""}${(
+                          Number(row.forecast_ppr_points) - Number(row.actual_ppr_points)
+                        ).toFixed(2)}`
+                      : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

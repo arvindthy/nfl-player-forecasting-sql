@@ -12,7 +12,7 @@ type TeamMetrics = {
   games: number;
 };
 
-const SEASONS = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
+const SEASONS = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
 
 const formatValue = (value: number | null) =>
   value === null ? "—" : value.toFixed(1);
@@ -40,7 +40,10 @@ export default function TeamsPage() {
     fetchFilters()
       .then((data) => {
         setFilters(data);
-        const latestSeason = data.seasons[data.seasons.length - 1];
+        const mergedSeasons = Array.from(
+          new Set([...(data.seasons ?? []), ...SEASONS])
+        ).sort((a, b) => a - b);
+        const latestSeason = mergedSeasons[mergedSeasons.length - 1];
         setSeason(latestSeason);
       })
       .catch((err) => setError(err.message));
@@ -169,7 +172,9 @@ export default function TeamsPage() {
             value={season ?? ""}
             onChange={(event) => setSeason(Number(event.target.value))}
           >
-            {(filters?.seasons ?? SEASONS).map((year) => (
+            {Array.from(
+              new Set([...(filters?.seasons ?? []), ...SEASONS])
+            ).map((year) => (
               <option key={year} value={year}>
                 {year}
               </option>

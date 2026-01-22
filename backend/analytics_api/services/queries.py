@@ -1,4 +1,6 @@
+import json
 from django.db import connection
+from django.db.utils import ProgrammingError
 
 def fetch_overview():
     with connection.cursor() as cursor:
@@ -20,19 +22,96 @@ def fetch_overview():
         "positions": ["QB", "RB", "WR", "TE"],
     }
 
+
+def _coerce_json(value):
+    if value is None:
+        return None
+    if isinstance(value, (dict, list)):
+        return value
+    return json.loads(value)
+
+
+def fetch_home_cache(season):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    overview,
+                    metrics,
+                    metrics_by_position,
+                    weekly_mae,
+                    mvp,
+                    mvp_by_position,
+                    last_updated
+                FROM analytics.home_dashboard_cache
+                WHERE season = %s;
+                """,
+                [season],
+            )
+            row = cursor.fetchone()
+    except ProgrammingError:
+        return None
+
+    if not row:
+        return None
+
+    return {
+        "overview": _coerce_json(row[0]),
+        "metrics": _coerce_json(row[1]),
+        "metrics_by_position": _coerce_json(row[2]),
+        "weekly_mae": _coerce_json(row[3]),
+        "mvp": _coerce_json(row[4]),
+        "mvp_by_position": _coerce_json(row[5]),
+        "last_updated": row[6],
+    }
+
+
+def fetch_latest_home_cache():
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    season,
+                    overview,
+                    last_updated
+                FROM analytics.home_dashboard_cache
+                ORDER BY season DESC
+                LIMIT 1;
+                """
+            )
+            row = cursor.fetchone()
+    except ProgrammingError:
+        return None
+
+    if not row:
+        return None
+
+    return {
+        "season": row[0],
+        "overview": _coerce_json(row[1]),
+        "last_updated": row[2],
+    }
+
 def fetch_forecasts(season, week, position, limit):
     with connection.cursor() as cursor:
         cursor.execute(
             """
             SELECT
-                player_name,
-                team,
-                forecast_ppr_points
-            FROM analytics.player_week_forecast_enhanced
-            WHERE season = %s
-              AND forecast_week = %s
-              AND forecast_week BETWEEN 1 AND 18
-              AND position = %s
+                f.player_name,
+                f.team,
+                f.forecast_ppr_points,
+                a.ppr_points_calculated AS actual_ppr_points
+            FROM analytics.player_week_forecast_enhanced f
+            LEFT JOIN analytics.player_game_facts_ppr a
+              ON f.player_id = a.player_id
+             AND f.season = a.season
+             AND f.forecast_week = a.week
+            WHERE f.season = %s
+              AND f.forecast_week = %s
+              AND f.forecast_week BETWEEN 1 AND 18
+              AND f.position = %s
             ORDER BY forecast_ppr_points DESC
             LIMIT %s;
             """,
@@ -213,6 +292,80 @@ def fetch_filters():
         "positions": positions,
     }
 
+
+def fetch_player_reg_aggregate(season, player_name, team=None, position=None):
+    clauses = ["season = %s", "season_type = 'REG'", "(LOWER(player_name) = %s OR LOWER(player_display_name) = %s)"]
+    params = [season, player_name.lower(), player_name.lower()]
+
+    if team:
+        clauses.append("LOWER(recent_team) = %s")
+        params.append(team.lower())
+    if position:
+        clauses.append("LOWER(position) = %s")
+        params.append(position.lower())
+
+    where_sql = " AND ".join(clauses)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT
+                MAX(player_id) AS player_id,
+                MAX(player_name) AS player_name,
+                MAX(player_display_name) AS player_display_name,
+                MAX(position) AS position,
+                MAX(recent_team) AS recent_team,
+                season,
+                'REG' AS season_type,
+                LEAST(
+                    17,
+                    COUNT(
+                        DISTINCT CASE
+                            WHEN COALESCE(attempts, 0) > 0
+                              OR COALESCE(carries, 0) > 0
+                              OR COALESCE(targets, 0) > 0
+                              OR COALESCE(receptions, 0) > 0
+                              OR COALESCE(passing_yards, 0) > 0
+                              OR COALESCE(rushing_yards, 0) > 0
+                              OR COALESCE(receiving_yards, 0) > 0
+                            THEN week
+                        END
+                    )
+                ) AS games,
+                SUM(completions) AS completions,
+                SUM(attempts) AS attempts,
+                SUM(passing_yards) AS passing_yards,
+                SUM(passing_tds) AS passing_tds,
+                SUM(interceptions) AS passing_interceptions,
+                SUM(passing_air_yards) AS passing_air_yards,
+                SUM(passing_yards_after_catch) AS passing_yards_after_catch,
+                SUM(passing_first_downs) AS passing_first_downs,
+                SUM(passing_epa) AS passing_epa,
+                NULL::numeric AS passing_cpoe,
+                SUM(carries) AS carries,
+                SUM(rushing_yards) AS rushing_yards,
+                SUM(rushing_tds) AS rushing_tds,
+                SUM(rushing_first_downs) AS rushing_first_downs,
+                SUM(rushing_epa) AS rushing_epa,
+                SUM(targets) AS targets,
+                SUM(receptions) AS receptions,
+                SUM(receiving_yards) AS receiving_yards,
+                SUM(receiving_tds) AS receiving_tds,
+                SUM(receiving_first_downs) AS receiving_first_downs,
+                SUM(receiving_epa) AS receiving_epa,
+                MAX(headshot_url) AS headshot_url
+            FROM raw.nflverse_player_game_stats
+            WHERE {where_sql}
+            GROUP BY season;
+            """,
+            params,
+        )
+        row = cursor.fetchone()
+        if not row:
+            return None
+        columns = [col[0] for col in cursor.description]
+        return dict(zip(columns, row))
+
 def fetch_weekly_mae(season):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -238,7 +391,7 @@ def fetch_weekly_mae(season):
 
 
 def fetch_games(filters):
-    where_clauses = ["season BETWEEN 2018 AND 2024", "game_type = 'REG'", "week BETWEEN 1 AND 18"]
+    where_clauses = ["season BETWEEN 2018 AND 2025", "game_type = 'REG'", "week BETWEEN 1 AND 18"]
     params = []
 
     seasons = filters.get("seasons")
@@ -433,7 +586,10 @@ def fetch_team_roster(season, team_code):
                 player_display_name,
                 position,
                 team,
-                SUM(fantasy_points_ppr) AS fantasy_points_ppr
+                SUM(fantasy_points_ppr) AS fantasy_points_ppr,
+                SUM(passing_yards) AS passing_yards,
+                SUM(rushing_yards) AS rushing_yards,
+                SUM(receiving_yards) AS receiving_yards
             FROM analytics.player_game_facts_ppr
             WHERE season = %s
               AND team = %s
@@ -451,6 +607,9 @@ def fetch_team_roster(season, team_code):
                 "position": row[2],
                 "team": row[3],
                 "fantasy_points_ppr": float(row[4]) if row[4] is not None else 0.0,
+                "passing_yards": float(row[5]) if row[5] is not None else 0.0,
+                "rushing_yards": float(row[6]) if row[6] is not None else 0.0,
+                "receiving_yards": float(row[7]) if row[7] is not None else 0.0,
             }
             for row in rows
         ]

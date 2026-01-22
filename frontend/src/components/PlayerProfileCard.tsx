@@ -90,9 +90,13 @@ export default function PlayerProfileCard({
             {season ? ` · Season ${season}` : ""}
           </p>
         </div>
-        {team && getLogo(team) && (
+        {team && (getLogo(team) || getLogo(team)) && (
           <div className="player-team-mark">
-            <img src={getLogo(team)} alt={`${team} logo`} loading="lazy" />
+            <img
+              src={getLogo(team) || getLogo(team)}
+              alt={`${team} helmet`}
+              loading="lazy"
+            />
           </div>
         )}
       </div>
@@ -100,7 +104,7 @@ export default function PlayerProfileCard({
       {detailsLoading && <p className="loading">Loading player details…</p>}
       {detailsError && <p className="error">Error: {detailsError}</p>}
 
-      {playerDetails && (
+      {playerDetails?.records?.length ? (
         <div className="modal-body">
           {playerDetails.records.map((record, index) => (
             <section key={`${record.season_type}-${index}`} className="record-card">
@@ -112,18 +116,7 @@ export default function PlayerProfileCard({
                     {record.games ? ` · Games: ${record.games}` : ""}
                   </p>
                 </div>
-                <span className="record-team">
-                  {getLogo(record.recent_team) ? (
-                    <img
-                      className="record-team-logo"
-                      src={getLogo(record.recent_team)}
-                      alt={`${record.recent_team} logo`}
-                      loading="lazy"
-                    />
-                  ) : (
-                    record.recent_team || "—"
-                  )}
-                </span>
+                
               </div>
               {renderStatGroup(record, "Passing", [
                 ["Completions", "completions"],
@@ -154,6 +147,9 @@ export default function PlayerProfileCard({
             </section>
           ))}
         </div>
+      ) : (
+        !detailsLoading &&
+        !detailsError && <p className="empty-state">No player details found.</p>
       )}
     </div>
   );

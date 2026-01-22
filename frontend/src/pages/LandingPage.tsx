@@ -40,7 +40,7 @@ export default function LandingPage() {
     fetchOverview()
       .then((data) => {
         setOverview(data);
-        const season = Math.max(...data.seasons);
+        const season = data.seasons.includes(2024) ? 2024 : Math.max(...data.seasons);
         return Promise.all([
           fetchMetrics(season),
           fetchMetricsByPosition(season),
@@ -97,7 +97,12 @@ export default function LandingPage() {
 
   const latestSeason = useMemo(() => {
     if (!overview?.seasons?.length) return null;
-    return Math.max(...overview.seasons);
+    return overview.seasons.includes(2024) ? 2024 : Math.max(...overview.seasons);
+  }, [overview]);
+
+  const displaySeasons = useMemo(() => {
+    if (!overview?.seasons?.length) return [];
+    return overview.seasons.filter((season) => season <= 2024);
   }, [overview]);
 
   const latestWeekMae = useMemo(() => {
@@ -105,6 +110,17 @@ export default function LandingPage() {
     const point = weeklyChart.find((entry) => entry.week === activeWeek);
     return point?.mae ?? null;
   }, [activeWeek, weeklyChart]);
+
+  const lastUpdatedLabel = useMemo(() => {
+    if (!overview?.last_updated) return null;
+    const parsed = new Date(overview.last_updated);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }, [overview?.last_updated]);
 
   if (error) return <p className="error">Error: {error}</p>;
   if (!overview || !metrics || !metricsByPosition || !weeklyMae || !mvp || !mvpsByPosition) {
@@ -121,7 +137,10 @@ export default function LandingPage() {
 
       <div className="home-layout">
       <div className="home-hero">
-        <p className="hero-tag">2024 Forecasting Engine</p>
+        <div className="hero-tags">
+          <p className="hero-tag">2024 Forecasting Engine</p>
+          <span className="hero-subtag">2025 &amp; 2026 coming soon</span>
+        </div>
         <h3>Actionable fantasy projections, built from real game tempo.</h3>
         <p>
           Track player outlooks, matchup context, and weekly fantasy trends with
@@ -131,13 +150,14 @@ export default function LandingPage() {
           <span>Live Data</span>
           <span>Weekly Updates</span>
           <span>Model-Driven</span>
+          {lastUpdatedLabel && <span>Updated {lastUpdatedLabel}</span>}
         </div>
       </div>
 
       <div className="metrics-grid">
         <div className="metric-card">
           <h3>Seasons Covered</h3>
-          <p>{overview.seasons.join(", ")}</p>
+          <p>{displaySeasons.join(", ")}</p>
         </div>
 
         <div className="metric-card">

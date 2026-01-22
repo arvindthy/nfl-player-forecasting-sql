@@ -1,7 +1,9 @@
 import pandas as pd
+from pathlib import Path
 from sqlalchemy import create_engine
 
-CSV_PATH = "data/raw/games.csv"
+BASE_DIR = Path(__file__).resolve().parents[1]
+CSV_PATH = BASE_DIR / "backend" / "data" / "raw" / "games.csv"
 
 DB_URL = (
     "postgresql+psycopg2://"
@@ -16,11 +18,14 @@ df = pd.read_csv(CSV_PATH)
 print(f"Rows read: {len(df)}")
 print("Writing to PostgreSQL: raw.nflverse_games")
 
+with engine.begin() as conn:
+    conn.exec_driver_sql("TRUNCATE TABLE raw.nflverse_games")
+
 df.to_sql(
     "nflverse_games",
     engine,
     schema="raw",
-    if_exists="replace",
+    if_exists="append",
     index=False,
     method="multi",
     chunksize=10000,

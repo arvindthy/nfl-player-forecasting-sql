@@ -39,4 +39,10 @@ SELECT p.player_id,
     p.fantasy_points_ppr
    FROM raw.nflverse_player_game_stats p
      LEFT JOIN raw.nflverse_games g ON p.season = g.season AND p.week = g.week AND (p.recent_team = g.home_team OR p.recent_team = g.away_team)
-  WHERE p.season >= 2018 AND p.season <= 2024 AND (p."position" = ANY (ARRAY['QB'::text, 'RB'::text, 'WR'::text, 'TE'::text]));;
+  WHERE p.season >= 2018
+    AND p.season <= 2025
+    AND (p."position" = ANY (ARRAY['QB'::text, 'RB'::text, 'WR'::text, 'TE'::text]))
+    AND (
+      p.season < 2025
+      OR p.season_type = 'REG'
+    );;

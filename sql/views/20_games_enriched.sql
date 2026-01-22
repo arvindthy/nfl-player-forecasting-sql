@@ -57,6 +57,6 @@ SELECT
         ELSE FALSE
     END AS is_favorite_home
 FROM raw.nflverse_games
-WHERE season BETWEEN 2018 AND 2024
+WHERE season BETWEEN 2018 AND 2025
   AND game_type = 'REG'
   AND week BETWEEN 1 AND 18;

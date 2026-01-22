@@ -81,7 +81,7 @@ export default function AppShell() {
               to="/about"
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
             >
-              About Me
+              About
             </NavLink>
           </nav>
           <button

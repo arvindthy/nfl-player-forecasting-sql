@@ -2,6 +2,7 @@ export interface ForecastRow {
   player_name: string;
   team: string;
   forecast_ppr_points: string; // IMPORTANT: string from SQL
+  actual_ppr_points?: string | null;
 }
 
 export interface ForecastResponse {
