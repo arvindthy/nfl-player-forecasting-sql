@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchGames } from "@/lib/api";
-import type { GamesResponse, GameRow } from "@/types/games";
+import { fetchGamePlayers, fetchGames, fetchPlayerDetails } from "@/lib/api";
+import PlayerProfileCard from "@/components/PlayerProfileCard";
+import type { GamesResponse, GameRow, GamePlayersResponse, GamePlayerRow } from "@/types/games";
+import type { PlayerDetailsResponse } from "@/types/forecast";
 import { TEAM_LOGOS } from "@/lib/teamLogos";
+import "@/styles/forecast.css";
 
 const SEASONS = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
@@ -26,6 +29,10 @@ const formatMargin = (game: GameRow) =>
 
 const getWinner = (game: GameRow) => (game.home_win ? game.home_team : game.away_team);
 const getLogo = (team: string) => TEAM_LOGOS[team];
+const formatYards = (value?: number | null) =>
+  value === null || value === undefined ? "—" : Math.round(value).toString();
+const formatPpr = (value?: number | null) =>
+  value === null || value === undefined ? "—" : Number(value).toFixed(1);
 
 const HighlightCard = ({
   label,
@@ -158,6 +165,14 @@ export default function GamesPage() {
   const [data, setData] = useState<GamesResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameRow | null>(null);
+  const [selectedGamePlayers, setSelectedGamePlayers] = useState<GamePlayersResponse | null>(null);
+  const [playersLoading, setPlayersLoading] = useState(false);
+  const [playersError, setPlayersError] = useState<string | null>(null);
+  const [activeTeamTab, setActiveTeamTab] = useState<"away" | "home">("away");
+  const [selectedPlayer, setSelectedPlayer] = useState<GamePlayerRow | null>(null);
+  const [playerDetails, setPlayerDetails] = useState<PlayerDetailsResponse | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
   const [showOvertimeModal, setShowOvertimeModal] = useState(false);
 
   const [season, setSeason] = useState<number[]>([2025]);
@@ -220,6 +235,66 @@ export default function GamesPage() {
 
     return () => clearTimeout(timeout);
   }, [queryParams]);
+
+  useEffect(() => {
+    if (!selectedGame) {
+      setSelectedGamePlayers(null);
+      setPlayersError(null);
+      setPlayersLoading(false);
+      setSelectedPlayer(null);
+      return;
+    }
+
+    setActiveTeamTab("away");
+    setPlayersLoading(true);
+    setPlayersError(null);
+
+    fetchGamePlayers(selectedGame.game_id)
+      .then((response) => setSelectedGamePlayers(response))
+      .catch((err) => setPlayersError(err.message))
+      .finally(() => setPlayersLoading(false));
+  }, [selectedGame]);
+
+  useEffect(() => {
+    if (!selectedPlayer || !selectedGame) {
+      setPlayerDetails(null);
+      setDetailsError(null);
+      setDetailsLoading(false);
+      return;
+    }
+
+    const playerName = selectedPlayer.player_display_name || selectedPlayer.player_name;
+    setPlayerDetails(null);
+    setDetailsLoading(true);
+    setDetailsError(null);
+
+    const loadDetails = async () => {
+      try {
+        const response = await fetchPlayerDetails(
+          selectedGame.season,
+          playerName,
+          selectedPlayer.team,
+          selectedPlayer.position || undefined
+        );
+        setPlayerDetails(response);
+      } catch (err) {
+        try {
+          const fallback = await fetchPlayerDetails(selectedGame.season, playerName);
+          setPlayerDetails(fallback);
+          return;
+        } catch (fallbackErr) {
+          const message =
+            fallbackErr instanceof Error ? fallbackErr.message : "Failed to load player details.";
+          setDetailsError(message);
+          return;
+        }
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+
+    loadDetails();
+  }, [selectedGame, selectedPlayer]);
 
   const sortedRows = useMemo(() => {
     if (!data?.results) return [];
@@ -286,6 +361,24 @@ export default function GamesPage() {
       ? `${season[0]} games`
       : `${season[0]}–${season[season.length - 1]} games`
     : "All games";
+
+  const teamTabs = [
+    {
+      key: "away" as const,
+      label: selectedGame?.away_team ?? "Away",
+      logo: selectedGame ? getLogo(selectedGame.away_team) : undefined,
+    },
+    {
+      key: "home" as const,
+      label: selectedGame?.home_team ?? "Home",
+      logo: selectedGame ? getLogo(selectedGame.home_team) : undefined,
+    },
+  ];
+
+  const activePlayers =
+    activeTeamTab === "home"
+      ? selectedGamePlayers?.home_players ?? []
+      : selectedGamePlayers?.away_players ?? [];
 
   return (
     <section className="section games-dashboard">
@@ -737,6 +830,92 @@ export default function GamesPage() {
                 <strong>{selectedGame.away_coach} · {selectedGame.home_coach}</strong>
               </div>
             </div>
+            <div className="game-modal-divider" />
+            <div className="game-modal-tabs">
+              {teamTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className={activeTeamTab === tab.key ? "active" : ""}
+                  onClick={() => setActiveTeamTab(tab.key)}
+                >
+                  {tab.logo && (
+                    <img src={tab.logo} alt={`${tab.label} logo`} loading="lazy" />
+                  )}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="game-modal-players">
+              {playersLoading && <p className="loading">Loading player stats…</p>}
+              {playersError && <p className="error">Error: {playersError}</p>}
+              {!playersLoading && !playersError && (
+                <>
+                  {activePlayers.length ? (
+                    <table className="game-player-table">
+                      <thead>
+                        <tr>
+                          <th>Player</th>
+                          <th>Pos</th>
+                          <th>Pass Yds</th>
+                          <th>Rush Yds</th>
+                          <th>Rec Yds</th>
+                          <th>PPR</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activePlayers.map((player) => {
+                          const name = player.player_display_name || player.player_name;
+                          return (
+                            <tr
+                              key={`${player.player_id || name}-${player.team}`}
+                              className="game-player-row"
+                              onClick={() => setSelectedPlayer(player)}
+                            >
+                              <td>{name}</td>
+                              <td>{player.position || "—"}</td>
+                              <td>{formatYards(player.passing_yards)}</td>
+                              <td>{formatYards(player.rushing_yards)}</td>
+                              <td>{formatYards(player.receiving_yards)}</td>
+                              <td>{formatPpr(player.fantasy_points_ppr)}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="empty-state">No player stats available for this team.</p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedPlayer && selectedGame && (
+        <div
+          className="modal-backdrop player-modal-backdrop"
+          onClick={() => setSelectedPlayer(null)}
+        >
+          <div className="player-modal" onClick={(event) => event.stopPropagation()}>
+            <PlayerProfileCard
+              selectedPlayer={selectedPlayer.player_display_name || selectedPlayer.player_name}
+              position={selectedPlayer.position || undefined}
+              season={selectedGame.season}
+              playerDetails={playerDetails}
+              detailsLoading={detailsLoading}
+              detailsError={detailsError}
+              className="player-profile-card"
+              headerAction={
+                <button
+                  className="modal-close"
+                  type="button"
+                  onClick={() => setSelectedPlayer(null)}
+                >
+                  ×
+                </button>
+              }
+            />
           </div>
         </div>
       )}

@@ -1,6 +1,5 @@
 import csv
 import json
-from pathlib import Path
 from functools import wraps
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -19,6 +18,7 @@ from .services.queries import (
     fetch_filters,
     fetch_weekly_mae,
     fetch_games,
+    fetch_game_players,
     fetch_team_codes,
     fetch_team_roster,
     fetch_postseason_games,
@@ -273,7 +273,7 @@ def player_details_view(request):
             JsonResponse({"detail": "season must be an integer."}, status=400),
         )
 
-    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    csv_path = settings.DATA_ROOT / "raw" / "players" / f"stats_player_regpost_{season}.csv"
     if not csv_path.exists():
         return add_cors_headers(
             request,
@@ -372,7 +372,7 @@ def mvp_view(request):
             JsonResponse({"detail": "season must be an integer."}, status=400),
         )
 
-    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    csv_path = settings.DATA_ROOT / "raw" / "players" / f"stats_player_regpost_{season}.csv"
     if not csv_path.exists():
         return add_cors_headers(
             request,
@@ -463,7 +463,7 @@ def mvp_by_position_view(request):
             ),
         )
 
-    csv_path = Path(settings.BASE_DIR) / "data" / "raw" / "players" / f"stats_player_regpost_{season}.csv"
+    csv_path = settings.DATA_ROOT / "raw" / "players" / f"stats_player_regpost_{season}.csv"
     if not csv_path.exists():
         return add_cors_headers(
             request,
@@ -565,6 +565,43 @@ def games_view(request):
 
     data = fetch_games(filters)
     return add_cors_headers(request, JsonResponse(data))
+
+
+def game_players_view(request, game_id):
+    if request.method == "OPTIONS":
+        return add_cors_headers(request, HttpResponse(status=200))
+
+    if request.method != "GET":
+        return add_cors_headers(request, HttpResponse(status=405))
+
+    data = fetch_game_players(game_id)
+    if not data:
+        return add_cors_headers(
+            request,
+            JsonResponse({"detail": "Game not found."}, status=404),
+        )
+
+    home_team = data["home_team"]
+    away_team = data["away_team"]
+    home_players = []
+    away_players = []
+    for player in data["players"]:
+        if player.get("team") == home_team:
+            home_players.append(player)
+        elif player.get("team") == away_team:
+            away_players.append(player)
+
+    payload = {
+        "game_id": data["game_id"],
+        "season": data["season"],
+        "week": data["week"],
+        "home_team": home_team,
+        "away_team": away_team,
+        "home_players": home_players,
+        "away_players": away_players,
+    }
+
+    return add_cors_headers(request, JsonResponse(payload))
 
 def teams_view(request):
     if request.method == "OPTIONS":
@@ -706,8 +743,7 @@ def team_roster_view(request, team_code):
 
 def load_team_metadata():
     csv_path = (
-        Path(settings.BASE_DIR)
-        / "data"
+        settings.DATA_ROOT
         / "raw"
         / "games"
         / "teams_colors_logos.csv"
@@ -754,8 +790,7 @@ def _load_headshot_urls(season, player_ids):
         return {}
 
     csv_path = (
-        Path(settings.BASE_DIR)
-        / "data"
+        settings.DATA_ROOT
         / "raw"
         / "players"
         / f"stats_player_regpost_{season}.csv"

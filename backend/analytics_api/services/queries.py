@@ -556,6 +556,89 @@ def fetch_games(filters):
     return {"summary": summary, "results": results}
 
 
+def fetch_game_players(game_id):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                game_id,
+                season,
+                week,
+                home_team,
+                away_team
+            FROM raw.nflverse_games
+            WHERE game_id = %s;
+            """,
+            [game_id],
+        )
+        game_row = cursor.fetchone()
+
+        if not game_row:
+            return None
+
+        game = {
+            "game_id": game_row[0],
+            "season": game_row[1],
+            "week": game_row[2],
+            "home_team": game_row[3],
+            "away_team": game_row[4],
+        }
+
+        cursor.execute(
+            """
+            SELECT
+                p.player_id,
+                p.player_name,
+                p.player_display_name,
+                p.position,
+                p.recent_team AS team,
+                COALESCE(p.passing_yards, 0) AS passing_yards,
+                COALESCE(p.rushing_yards, 0) AS rushing_yards,
+                COALESCE(p.receiving_yards, 0) AS receiving_yards,
+                COALESCE(p.passing_tds, 0) AS passing_tds,
+                COALESCE(p.rushing_tds, 0) AS rushing_tds,
+                COALESCE(p.receiving_tds, 0) AS receiving_tds,
+                COALESCE(p.fantasy_points_ppr, 0) AS fantasy_points_ppr
+            FROM raw.nflverse_player_game_stats p
+            WHERE p.season = %s
+              AND p.week = %s
+              AND p.recent_team IN (%s, %s)
+              AND (
+                p.season < 2025
+                OR p.season_type = 'REG'
+              )
+            ORDER BY p.recent_team, p.position, p.player_display_name;
+            """,
+            [
+                game["season"],
+                game["week"],
+                game["home_team"],
+                game["away_team"],
+            ],
+        )
+        rows = cursor.fetchall()
+
+    players = [
+        {
+            "player_id": row[0],
+            "player_name": row[1],
+            "player_display_name": row[2],
+            "position": row[3],
+            "team": row[4],
+            "passing_yards": float(row[5]) if row[5] is not None else 0.0,
+            "rushing_yards": float(row[6]) if row[6] is not None else 0.0,
+            "receiving_yards": float(row[7]) if row[7] is not None else 0.0,
+            "passing_tds": float(row[8]) if row[8] is not None else 0.0,
+            "rushing_tds": float(row[9]) if row[9] is not None else 0.0,
+            "receiving_tds": float(row[10]) if row[10] is not None else 0.0,
+            "fantasy_points_ppr": float(row[11]) if row[11] is not None else 0.0,
+        }
+        for row in rows
+    ]
+
+    return {**game, "players": players}
+
+
 def fetch_team_codes(season):
     with connection.cursor() as cursor:
         cursor.execute(

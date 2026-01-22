@@ -35,7 +35,7 @@ export default function AboutPage() {
 				rel="noopener noreferrer"
 				className="about-link"
 			>
-				linkedin.com/in/arvindthy
+				github.com/arvindthy
 			</a>
 		  </p>
 		  <p>
@@ -54,8 +54,17 @@ export default function AboutPage() {
         <div className="about-bio">
           <p className="about-kicker">ARVIND THYAGARAJAN</p>
           <h3>Turning messy data into calm decisions.</h3>
+		  <p className="stage-tile">
+			I’m <b>Arvind Thyagarajan</b>, a recent Managerial Economics graduate from UC Davis 
+			with experience in government consulting, financial analysis, and self-directed 
+			AI/BI projects. I currently work on <b>CDMO Exchange</b>, a B2B decision-support 
+			platform where I help develop data models and fit-scoring logic that combine 
+			structured capability data, quality indicators, and risk metrics to enable 
+			informed partner selection and process oversight in pharmaceutical manufacturing.
+		 </p>
+
           <p>
-            I built this platform to make weekly NFL decisions feel grounded. The
+            I built this Fantasy Football Forecasting platform to make weekly NFL decisions feel grounded. The
             focus is not raw stats, but the story they imply: how usage shifts,
             matchups change, and context drives fantasy outcomes.
           </p>
@@ -64,6 +73,7 @@ export default function AboutPage() {
             into one workflow so the outputs stay explainable and useful under real
             conditions.
           </p>
+          
         </div>
       </section>
 

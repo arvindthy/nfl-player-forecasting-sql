@@ -15,6 +15,11 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+data_root_env = os.environ.get("NFL_DATA_ROOT", "").strip()
+if data_root_env:
+    DATA_ROOT = Path(data_root_env).resolve()
+else:
+    DATA_ROOT = (BASE_DIR / "data").resolve()
 
 # Application definition
 

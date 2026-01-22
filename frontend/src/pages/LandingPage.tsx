@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import {
   LineChart,
   Line,
@@ -15,7 +15,10 @@ import {
   fetchMetricsByWeek,
   fetchMvp,
   fetchMvpByPosition,
+  fetchPlayerDetails,
 } from "@/lib/api";
+import PlayerProfileCard from "@/components/PlayerProfileCard";
+import "@/styles/forecast.css";
 import type { OverviewMetrics } from "@/types/overview";
 import type {
   MetricsResponse,
@@ -24,6 +27,16 @@ import type {
   MvpResponse,
   MvpByPositionResponse,
 } from "@/types/metrics";
+import type { PlayerDetailsResponse } from "@/types/forecast";
+
+type FeaturedPlayerRecord = {
+  playerName: string;
+  playerDisplayName?: string;
+  position?: string;
+  team?: string;
+};
+
+const FEATURED_SEASON = 2024;
 
 export default function LandingPage() {
   const [overview, setOverview] = useState<OverviewMetrics | null>(null);
@@ -35,6 +48,13 @@ export default function LandingPage() {
   const [mvpsByPosition, setMvpsByPosition] = useState<MvpByPositionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeWeek, setActiveWeek] = useState<number | null>(null);
+  const [selectedPlayerModal, setSelectedPlayerModal] =
+    useState<FeaturedPlayerRecord | null>(null);
+  const [playerDetails, setPlayerDetails] = useState<PlayerDetailsResponse | null>(
+    null
+  );
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOverview()
@@ -122,6 +142,88 @@ export default function LandingPage() {
     });
   }, [overview?.last_updated]);
 
+  const openPlayerModal = (
+    entry?: MvpResponse | (MvpByPositionResponse["mvps"][string] | undefined)
+  ) => {
+    if (!entry) {
+      return;
+    }
+    const displayName = entry.player_display_name ?? entry.player_name;
+    if (!displayName) {
+      return;
+    }
+    setSelectedPlayerModal({
+      playerName: displayName,
+      playerDisplayName: entry.player_display_name,
+      position: entry.position,
+      team: entry.recent_team,
+    });
+  };
+
+  const handlePlayerKeyDown = (
+    event: KeyboardEvent,
+    player?: MvpResponse | (MvpByPositionResponse["mvps"][string] | undefined)
+  ) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openPlayerModal(player);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedPlayerModal) {
+      setPlayerDetails(null);
+      setDetailsError(null);
+      setDetailsLoading(false);
+      return;
+    }
+
+    const playerName =
+      selectedPlayerModal.playerDisplayName || selectedPlayerModal.playerName;
+    if (!playerName) {
+      setSelectedPlayerModal(null);
+      return;
+    }
+
+    setPlayerDetails(null);
+    setDetailsError(null);
+    setDetailsLoading(true);
+
+    const loadDetails = async () => {
+      try {
+        const response = await fetchPlayerDetails(
+          FEATURED_SEASON,
+          playerName,
+          selectedPlayerModal.team,
+          selectedPlayerModal.position
+        );
+        setPlayerDetails(response);
+      } catch (err) {
+        if (selectedPlayerModal.team || selectedPlayerModal.position) {
+          try {
+            const fallback = await fetchPlayerDetails(FEATURED_SEASON, playerName);
+            setPlayerDetails(fallback);
+            return;
+          } catch (fallbackErr) {
+            const message =
+              fallbackErr instanceof Error
+                ? fallbackErr.message
+                : "Failed to load player details.";
+            setDetailsError(message);
+            return;
+          }
+        }
+        const message =
+          err instanceof Error ? err.message : "Failed to load player details.";
+        setDetailsError(message);
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+
+    loadDetails();
+  }, [selectedPlayerModal]);
+
   if (error) return <p className="error">Error: {error}</p>;
   if (!overview || !metrics || !metricsByPosition || !weeklyMae || !mvp || !mvpsByPosition) {
     return <p className="loading">Loading analytics…</p>;
@@ -177,7 +279,13 @@ export default function LandingPage() {
 
         <div className="metric-card highlight">
           <h3>MVP (All Positions)</h3>
-          <div className="mvp-card">
+          <div
+            className="mvp-card clickable"
+            role="button"
+            tabIndex={0}
+            onClick={() => openPlayerModal(mvp)}
+            onKeyDown={(event) => handlePlayerKeyDown(event, mvp)}
+          >
             {mvp.headshot_url && (
               <img src={mvp.headshot_url} alt={mvp.player_display_name || "MVP"} />
             )}
@@ -196,24 +304,32 @@ export default function LandingPage() {
         <div className="metric-card wide subtle">
           <h3>MVP by Position</h3>
           <div className="mvp-mini-grid">
-            {["QB", "RB", "WR", "TE"].map((pos) => {
-              const entry = mvpsByPosition.mvps[pos];
-              return (
-                <div key={pos} className="mvp-mini-card">
-                  {entry?.headshot_url && (
-                    <img src={entry.headshot_url} alt={entry.player_display_name || entry.player_name || pos} />
-                  )}
-                  <div>
-                    <span>{pos}</span>
-                    <strong>{entry?.player_display_name || entry?.player_name || "—"}</strong>
-                    <p>{entry?.recent_team || "—"}</p>
-                    <p className="mvp-mini-score">
-                      {toNumber(entry?.fantasy_points_ppr)?.toFixed(1) ?? "—"} PPR
-                    </p>
+              {["QB", "RB", "WR", "TE"].map((pos) => {
+                const entry = mvpsByPosition.mvps[pos];
+                const isClickable = Boolean(entry && (entry.player_display_name || entry.player_name));
+                return (
+                  <div
+                    key={pos}
+                    className={`mvp-mini-card${isClickable ? " clickable" : ""}`}
+                    role={isClickable ? "button" : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    onClick={() => entry && openPlayerModal(entry)}
+                    onKeyDown={(event) => entry && handlePlayerKeyDown(event, entry)}
+                  >
+                    {entry?.headshot_url && (
+                      <img src={entry.headshot_url} alt={entry.player_display_name || entry.player_name || pos} />
+                    )}
+                    <div>
+                      <span>{pos}</span>
+                      <strong>{entry?.player_display_name || entry?.player_name || "—"}</strong>
+                      <p>{entry?.recent_team || "—"}</p>
+                      <p className="mvp-mini-score">
+                        {toNumber(entry?.fantasy_points_ppr)?.toFixed(1) ?? "—"} PPR
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       </div>
@@ -356,7 +472,33 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+    </div>
+    {selectedPlayerModal && (
+      <div className="modal-backdrop" onClick={() => setSelectedPlayerModal(null)}>
+        <div className="player-modal" onClick={(event) => event.stopPropagation()}>
+          <PlayerProfileCard
+            selectedPlayer={
+              selectedPlayerModal.playerDisplayName || selectedPlayerModal.playerName
+            }
+            position={selectedPlayerModal.position}
+            season={FEATURED_SEASON}
+            playerDetails={playerDetails}
+            detailsLoading={detailsLoading}
+            detailsError={detailsError}
+            className="player-profile-card"
+            headerAction={
+              <button
+                className="modal-close"
+                type="button"
+                onClick={() => setSelectedPlayerModal(null)}
+              >
+                ×
+              </button>
+            }
+          />
+        </div>
       </div>
+    )}
     </section>
   );
 }

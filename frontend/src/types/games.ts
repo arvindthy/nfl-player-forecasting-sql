@@ -42,3 +42,28 @@ export interface GamesResponse {
   summary: GamesSummary;
   results: GameRow[];
 }
+
+export interface GamePlayerRow {
+  player_id?: string;
+  player_name: string;
+  player_display_name?: string;
+  position?: string | null;
+  team: string;
+  passing_yards?: number;
+  rushing_yards?: number;
+  receiving_yards?: number;
+  passing_tds?: number;
+  rushing_tds?: number;
+  receiving_tds?: number;
+  fantasy_points_ppr?: number;
+}
+
+export interface GamePlayersResponse {
+  game_id: string;
+  season: number;
+  week: number;
+  home_team: string;
+  away_team: string;
+  home_players: GamePlayerRow[];
+  away_players: GamePlayerRow[];
+}
