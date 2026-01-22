@@ -80,6 +80,63 @@
   transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+@media (max-width: 720px) {
+  .top-bar {
+    padding: 12px 16px;
+  }
+
+  .top-bar-actions {
+    width: 100%;
+  }
+
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-right: 48px;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+  }
+
+  .settings-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .main-sections {
+    padding: 24px 20px 32px;
+  }
+
+  .games-hero {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .games-hero-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filter-bar {
+    position: static;
+  }
+
+  .results-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .settings-button:hover {
   transform: rotate(12deg);
   border-color: rgba(var(--color-accent-3-rgb), 0.6);
