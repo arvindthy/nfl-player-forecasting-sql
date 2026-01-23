@@ -868,8 +868,9 @@
 
 .architecture-footnote {
   margin: 0;
-  color: rgba(var(--color-text-muted-rgb), 0.8);
-  font-size: 0.95rem;
+  color: rgba(var(--color-text-muted-rgb), 1);
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .philosophy-grid {
@@ -1127,6 +1128,7 @@ tbody tr:hover {
   display: grid;
   gap: 6px;
   white-space: nowrap;
+  font-weight: 700;
 }
 
 .site-footer {
@@ -2189,6 +2191,20 @@ tbody tr:hover {
 
 .game-player-row:hover {
   background: rgba(var(--color-accent-3-rgb), 0.14);
+}
+
+.game-player-group td {
+  padding: 4px 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(var(--color-text-muted-rgb), 0.7);
+  background: rgba(var(--color-surface-2-rgb), 0.55);
+  border-bottom: 1px solid rgba(var(--color-border-rgb), 0.2);
+}
+
+.game-player-group:hover td {
+  background: rgba(var(--color-surface-2-rgb), 1);
 }
 
 .game-modal-players .empty-state {

@@ -105,9 +105,9 @@ export default function AppShell() {
           <strong>arvindthy@gmail.com</strong>
         </div>
         <div className="footer-item">
-          <span>Website</span>
-          <a className="footer-link" href="https://arvindffb.com" target="_blank" rel="noreferrer">
-            arvindffb.com
+          <span>LinkedIn</span>
+          <a className="footer-link" href="https://www.linkedin.com/in/arvindthy" target="_blank" rel="noreferrer">
+              linkedin.com/in/arvindthy
           </a>
         </div>
         <div className="footer-item">

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { fetchGamePlayers, fetchGames, fetchPlayerDetails } from "@/lib/api";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import type { GamesResponse, GameRow, GamePlayersResponse, GamePlayerRow } from "@/types/games";
@@ -33,6 +33,7 @@ const formatYards = (value?: number | null) =>
   value === null || value === undefined ? "—" : Math.round(value).toString();
 const formatPpr = (value?: number | null) =>
   value === null || value === undefined ? "—" : Number(value).toFixed(1);
+const POSITION_ORDER = ["QB", "RB", "FB", "WR", "TE"];
 
 const HighlightCard = ({
   label,
@@ -379,6 +380,29 @@ export default function GamesPage() {
     activeTeamTab === "home"
       ? selectedGamePlayers?.home_players ?? []
       : selectedGamePlayers?.away_players ?? [];
+  const groupedPlayers = useMemo(() => {
+    const groups = new Map<string, GamePlayerRow[]>();
+    POSITION_ORDER.forEach((pos) => groups.set(pos, []));
+    activePlayers.forEach((player) => {
+      const pos = player.position || "—";
+      if (!groups.has(pos)) {
+        groups.set(pos, []);
+      }
+      groups.get(pos)?.push(player);
+    });
+    const ordered: Array<[string, GamePlayerRow[]]> = [];
+    POSITION_ORDER.forEach((pos) => {
+      const list = groups.get(pos);
+      if (list && list.length) {
+        ordered.push([pos, list]);
+      }
+    });
+    groups.forEach((list, pos) => {
+      if (POSITION_ORDER.includes(pos) || !list.length) return;
+      ordered.push([pos, list]);
+    });
+    return ordered;
+  }, [activePlayers]);
 
   return (
     <section className="section games-dashboard">
@@ -864,23 +888,30 @@ export default function GamesPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {activePlayers.map((player) => {
-                          const name = player.player_display_name || player.player_name;
-                          return (
-                            <tr
-                              key={`${player.player_id || name}-${player.team}`}
-                              className="game-player-row"
-                              onClick={() => setSelectedPlayer(player)}
-                            >
-                              <td>{name}</td>
-                              <td>{player.position || "—"}</td>
-                              <td>{formatYards(player.passing_yards)}</td>
-                              <td>{formatYards(player.rushing_yards)}</td>
-                              <td>{formatYards(player.receiving_yards)}</td>
-                              <td>{formatPpr(player.fantasy_points_ppr)}</td>
+                        {groupedPlayers.map(([pos, players]) => (
+                          <Fragment key={pos}>
+                            <tr className="game-player-group">
+                              <td colSpan={6}>{pos}</td>
                             </tr>
-                          );
-                        })}
+                            {players.map((player) => {
+                              const name = player.player_display_name || player.player_name;
+                              return (
+                                <tr
+                                  key={`${player.player_id || name}-${player.team}`}
+                                  className="game-player-row"
+                                  onClick={() => setSelectedPlayer(player)}
+                                >
+                                  <td>{name}</td>
+                                  <td>{player.position || "—"}</td>
+                                  <td>{formatYards(player.passing_yards)}</td>
+                                  <td>{formatYards(player.rushing_yards)}</td>
+                                  <td>{formatYards(player.receiving_yards)}</td>
+                                  <td>{formatPpr(player.fantasy_points_ppr)}</td>
+                                </tr>
+                              );
+                            })}
+                          </Fragment>
+                        ))}
                       </tbody>
                     </table>
                   ) : (
