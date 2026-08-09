@@ -128,7 +128,7 @@ export default function AppShell() {
             <div className="settings-header">
               <p className="modal-eyebrow">Settings</p>
               <h3>Theme Selector</h3>
-              <p>Choose a UI theme that fits your vibe.</p>
+              <p>Choose a UI theme. Press Box Print is tuned for paper and screenshots.</p>
             </div>
             <div className="theme-grid">
               {themes.map((theme) => (
@@ -150,6 +150,9 @@ export default function AppShell() {
                   }}
                 >
                   <span>{theme.name}</span>
+                  {theme.description && (
+                    <em className="theme-description">{theme.description}</em>
+                  )}
                   <div className="theme-preview">
                     <span
                       className="theme-swatch"

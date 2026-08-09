@@ -1642,6 +1642,18 @@ tbody tr:hover {
   font-size: 1rem;
 }
 
+.theme-card .theme-description {
+  width: fit-content;
+  padding: 3px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .theme-preview {
   display: flex;
   gap: 8px;
@@ -2315,5 +2327,134 @@ tbody tr:hover {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+}
+
+@media print {
+  @page {
+    margin: 0.4in;
+  }
+
+  :root {
+    --color-bg: #ffffff !important;
+    --color-bg-rgb: 255, 255, 255 !important;
+    --color-surface-rgb: 255, 255, 255 !important;
+    --color-surface-2-rgb: 248, 250, 252 !important;
+    --color-surface-3-rgb: 219, 234, 254 !important;
+    --color-surface-4-rgb: 191, 219, 254 !important;
+    --color-surface-5-rgb: 226, 232, 240 !important;
+    --color-text-rgb: 0, 0, 0 !important;
+    --color-text-muted-rgb: 17, 24, 39 !important;
+    --color-text-dim-rgb: 31, 41, 55 !important;
+    --color-label-rgb: 0, 0, 0 !important;
+    --color-kpi-label-rgb: 0, 0, 0 !important;
+    --color-border-rgb: 15, 23, 42 !important;
+    --color-border-light-rgb: 148, 163, 184 !important;
+    --color-accent-rgb: 29, 78, 216 !important;
+    --color-accent-2-rgb: 180, 83, 9 !important;
+    --color-accent-3-rgb: 219, 234, 254 !important;
+    --color-warning-rgb: 194, 65, 12 !important;
+    --color-success-rgb: 21, 128, 61 !important;
+    --color-info-rgb: 3, 105, 161 !important;
+    --color-purple-rgb: 109, 40, 217 !important;
+    --color-warning-text-rgb: 124, 45, 18 !important;
+    --color-success-text-rgb: 20, 83, 45 !important;
+    --color-purple-text-rgb: 88, 28, 135 !important;
+    --color-info-text-rgb: 12, 74, 110 !important;
+    --color-white-rgb: 0, 0, 0 !important;
+    --color-ink-rgb: 248, 250, 252 !important;
+    --color-ink-strong-rgb: 0, 0, 0 !important;
+    color-scheme: light;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    text-shadow: none !important;
+  }
+
+  html,
+  body,
+  #root,
+  .app-shell {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .app-shell {
+    min-height: auto;
+  }
+
+  .top-bar {
+    position: static;
+    padding: 8px 12px;
+    background: #ffffff !important;
+    border-bottom: 1.5px solid #0f172a;
+    backdrop-filter: none;
+  }
+
+  .settings-button,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  .nav-tabs {
+    gap: 6px;
+  }
+
+  .nav-link,
+  .nav-link:hover,
+  .nav-link.active {
+    padding: 6px 10px;
+    background: #f8fafc !important;
+    border-color: #64748b !important;
+    color: #000000 !important;
+  }
+
+  .nav-link.active {
+    background: #dbeafe !important;
+    border-color: #1d4ed8 !important;
+  }
+
+  .main-sections {
+    padding: 16px 0;
+    gap: 20px;
+  }
+
+  .section,
+  .table-card,
+  .metric-card,
+  .grid-card > div,
+  .player-card,
+  .about-card,
+  .architecture-stage,
+  .philosophy-card,
+  .highlight-card,
+  .game-card,
+  .team-card {
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .section {
+    padding: 20px;
+    background: #ffffff !important;
+    border: 1.5px solid #64748b;
+  }
+
+  table,
+  tr,
+  img,
+  svg {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .site-footer {
+    background: #ffffff !important;
+    border-top: 1.5px solid #0f172a;
   }
 }

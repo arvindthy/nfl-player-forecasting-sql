@@ -10,9 +10,11 @@ import { royalPurple } from './definitions/royalPurple';
 import { awayJersey } from './definitions/awayJersey';
 import { desertHeat } from './definitions/desertHeat';
 import { deepSea } from './definitions/deepSea';
+import { pressBoxPrint } from './definitions/pressBoxPrint';
 import type { Theme } from './types';
 
 export const themes: Theme[] = [
+  pressBoxPrint,
   midnightPro,
   gridironGold,
   endzoneRed,
